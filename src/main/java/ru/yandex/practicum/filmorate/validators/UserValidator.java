@@ -31,7 +31,7 @@ public class UserValidator {
         throw new ValidationException("Invalid user's date of birth");
     }
 
-    public static boolean valid(User user) {
+    public static boolean valid(User user) throws ValidationException {
         return checkEmail(user)
                 && checkLogin(user)
                 && checkDOB(user);

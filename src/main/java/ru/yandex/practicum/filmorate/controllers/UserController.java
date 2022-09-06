@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @Slf4j
+@RequestMapping("/user")
 public class UserController {
 
     private Map<Integer, User> userMap = new HashMap<>();
@@ -27,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/add")
-    public @ResponseBody ResponseEntity<User> addUser(@RequestBody User user) {
+    public @ResponseBody ResponseEntity<User> addUser(@RequestBody User user) throws ValidationException {
         if (userMap.containsKey(user.getId())) {
             return new ResponseEntity<>(user, HttpStatus.IM_USED);
         } else {
@@ -42,7 +43,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/update")
-    public @ResponseBody ResponseEntity<User> updateUser(@RequestBody User user) {
+    public @ResponseBody ResponseEntity<User> updateUser(@RequestBody User user) throws ValidationException {
         if (userMap.containsKey(user.getId())) {
             if (UserValidator.valid(user)) {
                 user = checkName(user);
@@ -57,7 +58,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/all")
-    public @ResponseBody ResponseEntity<Map<Integer, User>> getAll() {
+    public @ResponseBody ResponseEntity<Map<Integer, User>> getAllUsers() {
         return new ResponseEntity<>(userMap, HttpStatus.OK);
     }
 }

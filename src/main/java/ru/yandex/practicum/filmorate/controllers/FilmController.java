@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
@@ -12,12 +13,13 @@ import java.util.Map;
 
 @RestController
 @Slf4j
+@RequestMapping("/film")
 public class FilmController {
 
     private Map<Integer, Film> filmMap = new HashMap<>();
 
     @PostMapping(value = "/add")
-    public @ResponseBody ResponseEntity<Film> addFilm(@RequestBody Film film) {
+    public @ResponseBody ResponseEntity<Film> addFilm(@RequestBody Film film) throws ValidationException {
         if (filmMap.containsKey(film.getId())) {
             return new ResponseEntity<>(film, HttpStatus.IM_USED);
         } else {
@@ -31,7 +33,7 @@ public class FilmController {
     }
 
     @PutMapping(value = "/update")
-    public @ResponseBody ResponseEntity<Film> updateFilm(@RequestBody Film film) {
+    public @ResponseBody ResponseEntity<Film> updateFilm(@RequestBody Film film) throws ValidationException  {
         if (filmMap.containsKey(film.getId())) {
             if (FilmValidator.valid(film)) {
                 filmMap.put(film.getId(), film);
@@ -45,7 +47,7 @@ public class FilmController {
     }
 
     @GetMapping(value = "/all")
-    public @ResponseBody ResponseEntity<Map<Integer, Film>> getAll() {
+    public @ResponseBody ResponseEntity<Map<Integer, Film>> getAllFilms() {
         return new ResponseEntity<>(filmMap, HttpStatus.OK);
     }
 }
