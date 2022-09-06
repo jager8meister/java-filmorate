@@ -23,24 +23,14 @@ public class FilmController {
         if (filmMap.containsKey(film.getId())) {
             return new ResponseEntity<>(film, HttpStatus.IM_USED);
         } else {
-            if (FilmValidator.valid(film)) {
-                filmMap.put(film.getId(), film);
-                return new ResponseEntity<>(film, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(film, HttpStatus.NOT_ACCEPTABLE);
-            }
+            return checkAndSend(film);
         }
     }
 
     @PutMapping(value = "/update")
     public @ResponseBody ResponseEntity<Film> updateFilm(@RequestBody Film film) throws ValidationException  {
         if (filmMap.containsKey(film.getId())) {
-            if (FilmValidator.valid(film)) {
-                filmMap.put(film.getId(), film);
-                return new ResponseEntity<>(film, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(film, HttpStatus.NOT_ACCEPTABLE);
-            }
+            return checkAndSend(film);
         } else {
             return new ResponseEntity<>(film, HttpStatus.NOT_FOUND);
         }
@@ -49,5 +39,18 @@ public class FilmController {
     @GetMapping(value = "/all")
     public @ResponseBody ResponseEntity<Map<Integer, Film>> getAllFilms() {
         return new ResponseEntity<>(filmMap, HttpStatus.OK);
+    }
+
+    private ResponseEntity<Film> checkAndSend(Film film) {
+        try {
+            if (FilmValidator.valid(film)) {
+                filmMap.put(film.getId(), film);
+                return new ResponseEntity<>(film, HttpStatus.OK);
+            }
+        }
+        catch (ValidationException e) {
+            log.error(e.toString());
+        }
+        return new ResponseEntity<>(film, HttpStatus.NOT_ACCEPTABLE);
     }
 }
