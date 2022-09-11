@@ -40,7 +40,7 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @PostMapping(value = "/add")
+    @PostMapping()
     public @ResponseBody ResponseEntity<User> addUser(@RequestBody User user) throws ValidationException {
         if (userMap.containsKey(user.getId())) {
             return new ResponseEntity<>(user, HttpStatus.IM_USED);
@@ -49,7 +49,7 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/update")
+    @PutMapping()
     public @ResponseBody ResponseEntity<User> updateUser(@RequestBody User user) throws ValidationException {
         if (userMap.containsKey(user.getId())) {
             return checkAndSend(user);
@@ -58,7 +58,7 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping()
     public @ResponseBody ResponseEntity<Map<Integer, User>> getAllUsers() {
         return new ResponseEntity<>(userMap, HttpStatus.OK);
     }

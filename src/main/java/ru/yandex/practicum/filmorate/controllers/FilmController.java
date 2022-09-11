@@ -18,7 +18,7 @@ public class FilmController {
 
     private Map<Integer, Film> filmMap = new HashMap<>();
 
-    @PostMapping(value = "/add")
+    @PostMapping()
     public @ResponseBody ResponseEntity<Film> addFilm(@RequestBody Film film) throws ValidationException {
         if (filmMap.containsKey(film.getId())) {
             return new ResponseEntity<>(film, HttpStatus.IM_USED);
@@ -27,7 +27,7 @@ public class FilmController {
         }
     }
 
-    @PutMapping(value = "/update")
+    @PutMapping()
     public @ResponseBody ResponseEntity<Film> updateFilm(@RequestBody Film film) throws ValidationException  {
         if (filmMap.containsKey(film.getId())) {
             return checkAndSend(film);
@@ -36,7 +36,7 @@ public class FilmController {
         }
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping()
     public @ResponseBody ResponseEntity<Map<Integer, Film>> getAllFilms() {
         return new ResponseEntity<>(filmMap, HttpStatus.OK);
     }
