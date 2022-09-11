@@ -21,7 +21,7 @@ public class FilmController {
     @PostMapping()
     public @ResponseBody ResponseEntity<Film> addFilm(@RequestBody Film film) throws ValidationException {
         if (filmMap.containsKey(film.getId())) {
-            return new ResponseEntity<>(film, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(film, HttpStatus.BAD_REQUEST);
         } else {
             return checkAndSend(film);
         }

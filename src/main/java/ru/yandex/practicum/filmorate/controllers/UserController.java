@@ -43,7 +43,7 @@ public class UserController {
     @PostMapping()
     public @ResponseBody ResponseEntity<User> addUser(@RequestBody User user) throws ValidationException {
         if (userMap.containsKey(user.getId())) {
-            return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
         } else {
             return checkAndSend(user);
         }
