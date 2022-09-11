@@ -37,7 +37,7 @@ public class UserController {
         } catch (ValidationException e) {
             log.error(e.toString());
         }
-        return new ResponseEntity<>(user, HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @PostMapping()

@@ -51,6 +51,6 @@ public class FilmController {
         catch (ValidationException e) {
             log.error(e.toString());
         }
-        return new ResponseEntity<>(film, HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>(film, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
