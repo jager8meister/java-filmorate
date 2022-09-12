@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,8 +38,9 @@ public class FilmController {
     }
 
     @GetMapping()
-    public @ResponseBody ResponseEntity<Map<String, Film>> getAllFilms() {
-        return new ResponseEntity<>(filmMap, HttpStatus.OK);
+    public @ResponseBody ResponseEntity<List<Film>> getAllFilms() {
+        List<Film> filmList = filmMap.values().stream().toList();
+        return new ResponseEntity<>(filmList, HttpStatus.OK);
     }
 
     private ResponseEntity<Film> checkAndSend(Film film) {

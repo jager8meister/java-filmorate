@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -54,12 +55,13 @@ public class UserController {
         if (userMap.containsKey(user.getId())) {
             return checkAndSend(user);
         } else {
-            return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping()
-    public @ResponseBody ResponseEntity<Map<Integer, User>> getAllUsers() {
-        return new ResponseEntity<>(userMap, HttpStatus.OK);
+    public @ResponseBody ResponseEntity<List<User>> getAllUsers() {
+        List<User> userList = userMap.values().stream().toList();
+        return new ResponseEntity<>(userList, HttpStatus.OK);
     }
 }
