@@ -8,8 +8,8 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -60,8 +60,7 @@ public class UserController {
     }
 
     @GetMapping()
-    public @ResponseBody ResponseEntity<List<User>> getAllUsers() {
-        List<User> userList = userMap.values().stream().toList();
-        return new ResponseEntity<>(userList, HttpStatus.OK);
+    public @ResponseBody ResponseEntity<Collection<User>> getAllUsers() {
+        return new ResponseEntity<>(userMap.values(), HttpStatus.OK);
     }
 }
