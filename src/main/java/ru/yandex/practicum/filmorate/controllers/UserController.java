@@ -51,11 +51,7 @@ public class UserController {
 
     @PutMapping()
     public @ResponseBody ResponseEntity<User> updateUser(@RequestBody User user) throws ValidationException {
-        if (userMap.containsKey(user.getLogin())) {
-            return checkAndSend(user);
-        } else {
-            return new ResponseEntity<>(user, HttpStatus.NOT_ACCEPTABLE);
-        }
+        return checkAndSend(user);
     }
 
     @GetMapping()
