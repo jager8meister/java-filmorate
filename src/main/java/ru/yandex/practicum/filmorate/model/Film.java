@@ -12,6 +12,8 @@ import java.time.LocalDate;
 @Slf4j
 public class Film {
     @NonNull
+    private int id;
+    @NonNull
     private String name;
     @Nullable
     private String description;
