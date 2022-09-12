@@ -16,7 +16,7 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
-    private Map<Integer, User> userMap = new HashMap<>();
+    private Map<String, User> userMap = new HashMap<>();
 
     private User checkName(User user) {
         if (user.getName() == null) {
@@ -31,7 +31,7 @@ public class UserController {
         try {
             if (UserValidator.valid(user)) {
                 user = checkName(user);
-                userMap.put(user.getId(), user);
+                userMap.put(user.getLogin(), user);
                 return new ResponseEntity<>(user, HttpStatus.OK);
             }
         } catch (ValidationException e) {
@@ -42,7 +42,7 @@ public class UserController {
 
     @PostMapping()
     public @ResponseBody ResponseEntity<User> addUser(@RequestBody User user) throws ValidationException {
-        if (userMap.containsKey(user.getId())) {
+        if (userMap.containsKey(user.getLogin())) {
             return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
         } else {
             return checkAndSend(user);
@@ -51,7 +51,7 @@ public class UserController {
 
     @PutMapping()
     public @ResponseBody ResponseEntity<User> updateUser(@RequestBody User user) throws ValidationException {
-        if (userMap.containsKey(user.getId())) {
+        if (userMap.containsKey(user.getLogin())) {
             return checkAndSend(user);
         } else {
             return new ResponseEntity<>(user, HttpStatus.NOT_ACCEPTABLE);
@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @GetMapping()
-    public @ResponseBody ResponseEntity<Map<Integer, User>> getAllUsers() {
+    public @ResponseBody ResponseEntity<Map<String, User>> getAllUsers() {
         return new ResponseEntity<>(userMap, HttpStatus.OK);
     }
 }

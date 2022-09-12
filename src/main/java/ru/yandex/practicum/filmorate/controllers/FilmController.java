@@ -16,11 +16,11 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
 
-    private Map<Integer, Film> filmMap = new HashMap<>();
+    private Map<String, Film> filmMap = new HashMap<>();
 
     @PostMapping()
     public @ResponseBody ResponseEntity<Film> addFilm(@RequestBody Film film) throws ValidationException {
-        if (filmMap.containsKey(film.getId())) {
+        if (filmMap.containsKey(film.getName())) {
             return new ResponseEntity<>(film, HttpStatus.BAD_REQUEST);
         } else {
             return checkAndSend(film);
@@ -29,7 +29,7 @@ public class FilmController {
 
     @PutMapping()
     public @ResponseBody ResponseEntity<Film> updateFilm(@RequestBody Film film) throws ValidationException  {
-        if (filmMap.containsKey(film.getId())) {
+        if (filmMap.containsKey(film.getName())) {
             return checkAndSend(film);
         } else {
             return new ResponseEntity<>(film, HttpStatus.NOT_FOUND);
@@ -37,14 +37,14 @@ public class FilmController {
     }
 
     @GetMapping()
-    public @ResponseBody ResponseEntity<Map<Integer, Film>> getAllFilms() {
+    public @ResponseBody ResponseEntity<Map<String, Film>> getAllFilms() {
         return new ResponseEntity<>(filmMap, HttpStatus.OK);
     }
 
     private ResponseEntity<Film> checkAndSend(Film film) {
         try {
             if (FilmValidator.valid(film)) {
-                filmMap.put(film.getId(), film);
+                filmMap.put(film.getName(), film);
                 return new ResponseEntity<>(film, HttpStatus.OK);
             }
         }
