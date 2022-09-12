@@ -32,7 +32,7 @@ public class FilmController {
         if (filmMap.containsKey(film.getId())) {
             return checkAndSend(film);
         } else {
-            return new ResponseEntity<>(film, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(film, HttpStatus.BAD_REQUEST);
         }
     }
 
