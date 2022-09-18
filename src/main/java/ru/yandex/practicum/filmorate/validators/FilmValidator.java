@@ -28,7 +28,7 @@ public class FilmValidator {
     }
 
     private static boolean checkDuration(Film film) {
-        if (film.getDuration().toMillis() >= 0)
+        if (film.getDuration() > 0)
             return true;
         throw new ValidationException("Invalid film's duration");
     }

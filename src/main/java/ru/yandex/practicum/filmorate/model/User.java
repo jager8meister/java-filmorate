@@ -10,14 +10,9 @@ import java.time.LocalDate;
 @Data
 @Slf4j
 public class User {
-    @NonNull
-    private int id;
-    @NonNull
+    private Integer id;
     private String email;
-    @NonNull
     private String login;
-    @Nullable
     private String name;
-    @NonNull
     private LocalDate birthday;
 }

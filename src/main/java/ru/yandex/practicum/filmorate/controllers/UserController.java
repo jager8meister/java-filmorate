@@ -31,6 +31,9 @@ public class UserController {
     private ResponseEntity<User> checkAndSend(User user) {
         try {
             if (UserValidator.valid(user)) {
+                if (user.getId() == null) {
+                    user.setId(idGenerator());
+                }
                 user = checkName(user);
                 userMap.put(user.getId(), user);
                 return new ResponseEntity<>(user, HttpStatus.OK);
@@ -38,7 +41,7 @@ public class UserController {
         } catch (ValidationException e) {
             log.error(e.toString());
         }
-        return new ResponseEntity<>(user, HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping()
@@ -62,5 +65,16 @@ public class UserController {
     @GetMapping()
     public @ResponseBody ResponseEntity<Collection<User>> getAllUsers() {
         return new ResponseEntity<>(userMap.values(), HttpStatus.OK);
+    }
+
+    private int idGenerator() {
+        int id = 1;
+        while (true) {
+            if (userMap.containsKey(id)) {
+                id++;
+            } else {
+                return id;
+            }
+        }
     }
 }
