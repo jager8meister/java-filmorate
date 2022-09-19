@@ -1,17 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @Data
-@Slf4j
 public class User {
-    private Integer id;
+    private Long id;
+    @Email
     private String email;
+    @NotBlank
     private String login;
     private String name;
     private LocalDate birthday;

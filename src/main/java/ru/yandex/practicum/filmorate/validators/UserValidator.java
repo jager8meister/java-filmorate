@@ -36,4 +36,13 @@ public class UserValidator {
                 && checkLogin(user)
                 && checkDOB(user);
     }
+
+    public static User checkName(User user) {
+        if (user.getName() == null) {
+            user.setName(user.getLogin());
+        } else if (user.getName().isEmpty() || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        return user;
+    }
 }

@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,10 +18,10 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
 
-    private Map<Integer, Film> filmMap = new HashMap<>();
+    private Map<Long, Film> filmMap = new HashMap<>();
 
-    @PostMapping()
-    public @ResponseBody ResponseEntity<Film> addFilm(@RequestBody Film film) throws ValidationException {
+    @PostMapping
+    public @ResponseBody ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) throws ValidationException {
         if (filmMap.containsKey(film.getId())) {
             return new ResponseEntity<>(film, HttpStatus.BAD_REQUEST);
         } else {
@@ -28,8 +29,8 @@ public class FilmController {
         }
     }
 
-    @PutMapping()
-    public @ResponseBody ResponseEntity<Film> updateFilm(@RequestBody Film film) throws ValidationException  {
+    @PutMapping
+    public @ResponseBody ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) throws ValidationException  {
         if (filmMap.containsKey(film.getId())) {
             return checkAndSend(film);
         } else {
@@ -37,7 +38,7 @@ public class FilmController {
         }
     }
 
-    @GetMapping()
+    @GetMapping
     public @ResponseBody ResponseEntity<Collection<Film>> getAllFilms() {
         return new ResponseEntity<>(filmMap.values(), HttpStatus.OK);
     }
@@ -58,8 +59,8 @@ public class FilmController {
         return new ResponseEntity<>(film, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private int idGenerator() {
-        int id = 1;
+    private long idGenerator() {
+        long id = 1;
         while (true) {
             if (filmMap.containsKey(id)) {
                 id++;

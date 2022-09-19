@@ -1,17 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
 
-import java.time.Duration;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @Data
-@Slf4j
 public class Film {
-    private Integer id;
+    private Long id;
+    @NotBlank
     private String name;
     private String description;
     private LocalDate releaseDate;
