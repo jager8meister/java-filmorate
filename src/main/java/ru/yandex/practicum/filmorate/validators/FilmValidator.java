@@ -16,14 +16,16 @@ public class FilmValidator {
 
     private static boolean checkYear(Film film) {
         LocalDate checkDate = LocalDate.of(1895, 12, 28);
-        if (film.getReleaseDate().isAfter(checkDate))
-            return true;
+        if (film.getReleaseDate() != null
+                && film.getReleaseDate().isAfter(checkDate))
+                return true;
         throw new ValidationException("Invalid film's release date");
     }
 
     private static boolean checkDescriptionLength(Film film) {
-        if (film.getDescription().length() <= 200)
-            return true;
+        if (film.getDescription() != null
+                && film.getDescription().length() <= 200)
+                return true;
         throw new ValidationException("Invalid description length");
     }
 

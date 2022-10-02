@@ -25,8 +25,9 @@ public class UserValidator {
         throw new ValidationException("Invalid user login");
     }
 
-    private static boolean checkDOB(User user) {
-        if (user.getBirthday().isBefore(LocalDate.now()))
+    private static boolean checkBirthday(User user) {
+        if (user.getBirthday() != null
+                && user.getBirthday().isBefore(LocalDate.now()))
             return true;
         throw new ValidationException("Invalid user's date of birth");
     }
@@ -34,7 +35,7 @@ public class UserValidator {
     public static boolean valid(User user) throws ValidationException {
         return checkEmail(user)
                 && checkLogin(user)
-                && checkDOB(user);
+                && checkBirthday(user);
     }
 
     public static User checkName(User user) {
