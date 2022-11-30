@@ -54,6 +54,7 @@ public class UserService {
             User user = inMemoryUserStorage.getUserById(id);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (StorageException e) {
+            log.error(e.toString());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND );
         }
     }
@@ -63,6 +64,7 @@ public class UserService {
             inMemoryUserStorage.addFriend(id, friendId);
             return new ResponseEntity<>(inMemoryUserStorage.getUserById(friendId), HttpStatus.OK);
         } catch (StorageException e) {
+            log.error(e.toString());
             return new ResponseEntity<>(inMemoryUserStorage.getUserById(id), HttpStatus.NOT_FOUND);
         }
     }
@@ -71,6 +73,7 @@ public class UserService {
         try {
             return new ResponseEntity<>(inMemoryUserStorage.getAllFriends(id), HttpStatus.OK);
         } catch (StorageException e) {
+            log.error(e.toString());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -79,6 +82,7 @@ public class UserService {
         try {
             return new ResponseEntity<>(inMemoryUserStorage.getCommonFriends(id, otherId), HttpStatus.OK);
         } catch (StorageException e) {
+            log.error(e.toString());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -87,6 +91,7 @@ public class UserService {
         try {
             return new ResponseEntity<>(inMemoryUserStorage.removeFriend(id, friendId), HttpStatus.OK);
         } catch (StorageException e) {
+            log.error(e.toString());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

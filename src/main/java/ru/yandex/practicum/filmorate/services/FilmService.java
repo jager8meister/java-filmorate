@@ -57,6 +57,7 @@ public class FilmService {
         try {
             return new ResponseEntity<>(inMemoryFilmStorage.likeFilm(id, userId), HttpStatus.OK);
         } catch (StorageException e) {
+            log.error(e.toString());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -65,6 +66,7 @@ public class FilmService {
         try {
             return new ResponseEntity<>(inMemoryFilmStorage.deleteLike(id, userId), HttpStatus.OK);
         } catch (StorageException e) {
+            log.error(e.toString());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -77,6 +79,7 @@ public class FilmService {
         try {
             return new ResponseEntity<>(inMemoryFilmStorage.getFilmById(id), HttpStatus.OK);
         } catch (StorageException e) {
+            log.error(e.toString());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
