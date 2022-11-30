@@ -10,9 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.util.UserStorage;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -82,6 +80,42 @@ public class InMemoryUserStorage implements UserStorage {
             return userMap.get(id);
         } else {
             throw new StorageException("No user with id " + id);
+        }
+    }
+
+    public void addFriend(long id, long friendId) {
+        if (userMap.containsKey(id) && userMap.containsKey(friendId)) {
+//            Set<Long> ss = userMap.get(id).getFriendsIds();
+            userMap.get(id).getFriendsIds().add(friendId);
+            userMap.get(friendId).getFriendsIds().add(id);
+        } else {
+            throw new StorageException("Invalid id.");
+        }
+    }
+
+    public Collection<User> getAllFriends(long id) {
+        if (userMap.containsKey(id)) {
+            Set<User> res = new HashSet<>();
+            for (Long friendId : userMap.get(id).getFriendsIds()) {
+                res.add(userMap.get(friendId));
+            }
+            return res;
+        } else {
+            throw new StorageException("Invalid id.");
+        }
+    }
+
+    public Collection<User> getCommonFriends(long id, long otherId) {
+        if (userMap.containsKey(id) && userMap.containsKey(otherId)) {
+            Set<User> res = new HashSet<>();
+            for (Long commonId : userMap.get(id).getFriendsIds()) {
+                if (userMap.get(otherId).getFriendsIds().contains(commonId)) {
+                    res.add(userMap.get(commonId));
+                }
+            }
+            return res;
+        } else {
+            throw new StorageException("Invalid id.");
         }
     }
 }

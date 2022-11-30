@@ -41,4 +41,21 @@ public class UserController {
     public @ResponseBody ResponseEntity<User> getUserById(@PathVariable long id) {
         return service.getUserById(id);
     }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public @ResponseBody ResponseEntity<User> addFriend(@PathVariable long id, @PathVariable long friendId) {
+        return service.addFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public @ResponseBody ResponseEntity<Collection<User>> getAllFriends(@PathVariable long id) {
+        return service.getAllFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public @ResponseBody ResponseEntity<Collection<User>> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+        return service.getCommonFriends(id, otherId);
+    }
+
+
 }
