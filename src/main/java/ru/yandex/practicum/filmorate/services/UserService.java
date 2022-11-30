@@ -82,4 +82,12 @@ public class UserService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    public @ResponseBody ResponseEntity<User> removeFriend(long id, long friendId) {
+        try {
+            return new ResponseEntity<>(inMemoryUserStorage.removeFriend(id, friendId), HttpStatus.OK);
+        } catch (StorageException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

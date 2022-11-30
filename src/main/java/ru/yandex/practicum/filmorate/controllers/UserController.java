@@ -57,5 +57,8 @@ public class UserController {
         return service.getCommonFriends(id, otherId);
     }
 
-
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public @ResponseBody ResponseEntity<User> removeFriend(@PathVariable long id, @PathVariable long friendId) {
+        return service.removeFriend(id, friendId);
+    }
 }

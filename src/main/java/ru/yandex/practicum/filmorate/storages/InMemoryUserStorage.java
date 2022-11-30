@@ -95,7 +95,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     public Collection<User> getAllFriends(long id) {
         if (userMap.containsKey(id)) {
-            Set<User> res = new HashSet<>();
+            List<User> res = new ArrayList<>();
             for (Long friendId : userMap.get(id).getFriendsIds()) {
                 res.add(userMap.get(friendId));
             }
@@ -114,6 +114,16 @@ public class InMemoryUserStorage implements UserStorage {
                 }
             }
             return res;
+        } else {
+            throw new StorageException("Invalid id.");
+        }
+    }
+
+    public User removeFriend(long id, long friendId) {
+        if (userMap.containsKey(id) && userMap.containsKey(friendId)) {
+            userMap.get(id).getFriendsIds().remove(friendId);
+            userMap.get(friendId).getFriendsIds().remove(id);
+            return userMap.get(id);
         } else {
             throw new StorageException("Invalid id.");
         }
