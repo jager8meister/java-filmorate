@@ -85,7 +85,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     public void addFriend(long id, long friendId) {
         if (userMap.containsKey(id) && userMap.containsKey(friendId)) {
-//            Set<Long> ss = userMap.get(id).getFriendsIds();
             userMap.get(id).getFriendsIds().add(friendId);
             userMap.get(friendId).getFriendsIds().add(id);
         } else {
