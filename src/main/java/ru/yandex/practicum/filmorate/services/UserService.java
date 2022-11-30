@@ -47,4 +47,13 @@ public class UserService {
     public @ResponseBody ResponseEntity<Collection<User>> getAllUsers() {
         return new ResponseEntity<>(inMemoryUserStorage.getAllUsers(), HttpStatus.OK);
     }
+
+    public @ResponseBody ResponseEntity<User> getUserById(long id) {
+        try {
+            User user = inMemoryUserStorage.getUserById(id);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (StorageException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND );
+        }
+    }
 }

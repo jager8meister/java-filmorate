@@ -19,7 +19,6 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
 
-//    private Map<Long, Film> filmMap = new HashMap<>();
     private FilmService service = new FilmService();
 
     @PostMapping

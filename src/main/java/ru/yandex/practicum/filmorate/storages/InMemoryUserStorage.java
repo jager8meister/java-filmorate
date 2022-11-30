@@ -76,4 +76,12 @@ public class InMemoryUserStorage implements UserStorage {
     public Collection<User> getAllUsers() {
         return userMap.values();
     }
+
+    public User getUserById(long id) {
+        if (userMap.containsKey(id)) {
+            return userMap.get(id);
+        } else {
+            throw new StorageException("No user with id " + id);
+        }
+    }
 }
