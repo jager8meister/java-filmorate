@@ -4,15 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
+import ru.yandex.practicum.filmorate.comparator.FilmComparator;
 import ru.yandex.practicum.filmorate.exceptions.StorageException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storages.util.FilmStorage;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -75,5 +76,47 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     public Collection<Film> getAllFilms() {
         return filmMap.values();
+    }
+
+    public Film likeFilm(long id, long userId) {
+        if (filmMap.containsKey(id)) {
+            filmMap.get(id).getLikes().add(userId);
+            return filmMap.get(id);
+        } else {
+            throw new StorageException("Invalid film id.");
+        }
+    }
+
+    public Film deleteLike(long id, long userId) {
+        if (filmMap.containsKey(id)) {
+            if (filmMap.get(id).getLikes().contains(userId)) {
+                filmMap.get(id).getLikes().remove(userId);
+                return filmMap.get(id);
+            } else {
+                throw new StorageException("Invalid user id.");
+            }
+        } else {
+            throw new StorageException("Invalid film id.");
+        }
+    }
+
+    public List<Film> getPopularCounted(int count) {
+        List<Film> all = new ArrayList<>(filmMap.values());
+        all.sort(new FilmComparator());
+        List<Film> res;
+        if (count < filmMap.size()) {
+            res = all.subList(0, count);
+        } else {
+            res = all.subList(0, filmMap.size());
+        }
+        return res;
+    }
+
+    public Film getFilmById(long id) {
+        if (filmMap.containsKey(id)) {
+            return filmMap.get(id);
+        } else {
+            throw new StorageException("Invalid film id.");
+        }
     }
 }
