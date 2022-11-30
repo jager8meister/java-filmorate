@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.services.UserService;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
 import javax.validation.Valid;
@@ -18,55 +19,22 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
-    private Map<Long, User> userMap = new HashMap<>();
+    private UserService service = new UserService();
 
-    private ResponseEntity<User> checkAndSend(User user) {
-        try {
-            if (UserValidator.valid(user)) {
-                if (user.getId() == null) {
-                    user.setId(idGenerator());
-                }
-                user = UserValidator.checkName(user);
-                userMap.put(user.getId(), user);
-                return new ResponseEntity<>(user, HttpStatus.OK);
-            }
-        } catch (ValidationException e) {
-            log.error(e.toString());
-        }
-        return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
-    }
 
     @PostMapping
     public @ResponseBody ResponseEntity<User> addUser(@Valid @RequestBody User user) throws ValidationException {
-        if (userMap.containsKey(user.getId())) {
-            return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
-        } else {
-            return checkAndSend(user);
-        }
+        return service.addUser(user);
     }
 
     @PutMapping
     public @ResponseBody ResponseEntity<User> updateUser(@Valid @RequestBody User user) throws ValidationException {
-        if (userMap.containsKey(user.getId())) {
-            return checkAndSend(user);
-        } else {
-            return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return service.updateUser(user);
     }
 
     @GetMapping
     public @ResponseBody ResponseEntity<Collection<User>> getAllUsers() {
-        return new ResponseEntity<>(userMap.values(), HttpStatus.OK);
+        return service.getAllUsers();
     }
 
-    private long idGenerator() {
-        long id = 1;
-        while (true) {
-            if (userMap.containsKey(id)) {
-                id++;
-            } else {
-                return id;
-            }
-        }
-    }
 }
