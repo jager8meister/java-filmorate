@@ -96,7 +96,7 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void testFilmAdd() {
+	void testFilm() {
 		Film film = new Film();
 		film.setName("FI");
 		film.setDescription("text super");
@@ -128,5 +128,14 @@ class FilmorateApplicationTests {
 
 		responseEntity = filmController.likeFilm(1, -9);
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		responseEntity = filmController.likeFilm(1, 1);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		responseEntity = filmController.deleteLike(1,1);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		responseEntity = filmController.getFilmById(1);
+		assertThat(responseEntity.getBody().getLikes().size()).isEqualTo(1);
+
+		collectionResponseEntity = filmController.getAllFilms();
+		assertThat(collectionResponseEntity.getBody().size()).isEqualTo(2);
 	}
 }
