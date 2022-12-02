@@ -76,6 +76,9 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     public Film likeFilm(long id, long userId) {
         if (filmMap.containsKey(id)) {
+            if (userId <= 0) {
+                throw new StorageException("Non positive user id");
+            }
             filmMap.get(id).getLikes().add(userId);
             return filmMap.get(id);
         } else {
