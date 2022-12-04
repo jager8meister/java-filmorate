@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.StorageException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.services.FilmService;
@@ -18,7 +17,7 @@ import java.util.Collection;
 @RequestMapping("/films")
 public class FilmController {
 
-    private FilmService service;
+    private final FilmService service;
 
     @Autowired
     public FilmController(FilmService service) {
@@ -56,20 +55,12 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public @ResponseBody ResponseEntity<Film> likeFilm(@PathVariable long id, @PathVariable long userId) {
-        try {
-            return new ResponseEntity<>(service.likeFilm(id, userId), HttpStatus.OK);
-        } catch (StorageException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(service.likeFilm(id, userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public @ResponseBody ResponseEntity<Film> deleteLike(@PathVariable long id, @PathVariable long userId) {
-        try {
-            return new ResponseEntity<>(service.deleteLike(id, userId), HttpStatus.OK);
-        } catch (StorageException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(service.deleteLike(id, userId), HttpStatus.OK);
     }
 
     @GetMapping("/popular")
@@ -79,11 +70,7 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public @ResponseBody ResponseEntity<Film> getFilmById(@PathVariable long id) {
-        try {
-            return new ResponseEntity<>(service.getFilmById(id), HttpStatus.OK);
-        } catch (StorageException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(service.getFilmById(id), HttpStatus.OK);
     }
 
 }

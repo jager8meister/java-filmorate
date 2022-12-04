@@ -22,29 +22,11 @@ public class FilmService {
     }
 
     public void addFilm(Film film) {
-        try {
-            inMemoryFilmStorage.addFilm(film);
-            return;
-        } catch (StorageException e) {
-            log.error(e.toString());
-            if (e.getMessage().equals("Invalid film.")) {
-                throw e;
-            }
-        }
-        throw new StorageException("Bad request");
+        inMemoryFilmStorage.addFilm(film);
     }
 
     public void updateFilm(Film film) throws ValidationException  {
-        try {
-            inMemoryFilmStorage.updateFilm(film);
-            return;
-        } catch (StorageException e) {
-            log.error(e.toString());
-            if (e.getMessage().equals("Invalid film.")) {
-                throw e;
-            }
-        }
-        throw new StorageException("Bad request");
+        inMemoryFilmStorage.updateFilm(film);
     }
 
     public Collection<Film> getAllFilms() {
@@ -52,21 +34,11 @@ public class FilmService {
     }
 
     public Film likeFilm(long id, long userId) {
-        try {
-            return inMemoryFilmStorage.likeFilm(id, userId);
-        } catch (StorageException e) {
-            log.error(e.toString());
-            throw e;
-        }
+        return inMemoryFilmStorage.likeFilm(id, userId);
     }
 
     public Film deleteLike(long id, long userId) {
-        try {
-            return inMemoryFilmStorage.deleteLike(id, userId);
-        } catch (StorageException e) {
-            log.error(e.toString());
-            throw e;
-        }
+        return inMemoryFilmStorage.deleteLike(id, userId);
     }
 
     public Collection<Film> getPopularCounted(int count) {
@@ -74,11 +46,6 @@ public class FilmService {
     }
 
     public Film getFilmById(long id) {
-        try {
-            return inMemoryFilmStorage.getFilmById(id);
-        } catch (StorageException e) {
-            log.error(e.toString());
-            throw e;
-        }
+        return inMemoryFilmStorage.getFilmById(id);
     }
 }

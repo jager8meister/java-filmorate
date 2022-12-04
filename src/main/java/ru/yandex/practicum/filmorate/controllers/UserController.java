@@ -18,7 +18,7 @@ import java.util.Collection;
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService service;
+    private final UserService service;
 
     @Autowired
     public UserController(UserService service) {
@@ -31,6 +31,7 @@ public class UserController {
             service.addUser(user);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e) {
+            log.error(e.getMessage());
             return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
         }
     }
@@ -56,11 +57,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public @ResponseBody ResponseEntity<User> getUserById(@PathVariable long id) {
-        try {
             return new ResponseEntity<>(service.getUserById(id), HttpStatus.OK);
-        } catch (StorageException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -74,37 +71,16 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public @ResponseBody ResponseEntity<Collection<User>> getAllFriends(@PathVariable long id) {
-        try {
-            return new ResponseEntity<>(service.getAllFriends(id), HttpStatus.OK);
-        } catch (StorageException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(service.getAllFriends(id), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public @ResponseBody ResponseEntity<Collection<User>> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
-        try {
-            return new ResponseEntity<>(service.getCommonFriends(id, otherId), HttpStatus.OK);
-        } catch (StorageException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(service.getCommonFriends(id, otherId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public @ResponseBody ResponseEntity<User> removeFriend(@PathVariable long id, @PathVariable long friendId) {
-        try {
-            return new ResponseEntity<>(service.removeFriend(id, friendId), HttpStatus.OK);
-        } catch (StorageException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(service.removeFriend(id, friendId), HttpStatus.OK);
     }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleException(RuntimeException exception) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(exception.getMessage());
-    }
-
-
 }

@@ -14,7 +14,7 @@ import java.util.*;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private Map<Long, Film> filmMap = new HashMap<>();
+    private final Map<Long, Film> filmMap = new HashMap<>();
 
     private long idGenerator() {
         long id = 1;
@@ -38,7 +38,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             }
         }
         catch (ValidationException e) {
-            log.error(e.toString());
+            throw e;
         }
         throw new StorageException("Invalid film.");
     }
@@ -92,10 +92,10 @@ public class InMemoryFilmStorage implements FilmStorage {
                 filmMap.get(id).getLikes().remove(userId);
                 return filmMap.get(id);
             } else {
-                throw new StorageException("Invalid user id.");
+                throw new StorageException("Delete like: Invalid user id.");
             }
         } else {
-            throw new StorageException("Invalid film id.");
+            throw new StorageException("Delete like: Invalid film id.");
         }
     }
 

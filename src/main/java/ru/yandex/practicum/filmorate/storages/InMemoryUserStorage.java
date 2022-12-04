@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.StorageException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.util.UserStorage;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
@@ -13,7 +12,7 @@ import java.util.*;
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private Map<Long, User> userMap = new HashMap<>();
+    private final Map<Long, User> userMap = new HashMap<>();
 
     private long idGenerator() {
         long id = 1;
@@ -27,17 +26,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private User checkAndSend(User user) throws StorageException {
-        try {
-            if (UserValidator.valid(user)) {
-                if (user.getId() == null) {
-                    user.setId(idGenerator());
-                }
-                user = UserValidator.checkName(user);
-                userMap.put(user.getId(), user);
-                return user;
+        if (UserValidator.valid(user)) {
+            if (user.getId() == null) {
+                user.setId(idGenerator());
             }
-        } catch (ValidationException e) {
-            log.error(e.toString());
+            user = UserValidator.checkName(user);
+            userMap.put(user.getId(), user);
+            return user;
         }
         throw new StorageException("Invalid user.");
     }

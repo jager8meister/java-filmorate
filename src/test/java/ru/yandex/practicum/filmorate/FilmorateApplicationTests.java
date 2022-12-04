@@ -123,8 +123,6 @@ class FilmorateApplicationTests {
 		assertThat(((Film)(collectionResponseEntity.getBody().toArray()[1])).getName()).isEqualTo("SI");
 
 
-		responseEntity = filmController.likeFilm(1, -9);
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		responseEntity = filmController.likeFilm(1, 1);
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		responseEntity = filmController.deleteLike(1,1);

@@ -13,7 +13,7 @@ import java.util.Collection;
 @Slf4j
 public class UserService {
 
-    InMemoryUserStorage inMemoryUserStorage;
+    private InMemoryUserStorage inMemoryUserStorage;
 
     @Autowired
     public UserService(InMemoryUserStorage inMemoryUserStorage) {
@@ -21,26 +21,11 @@ public class UserService {
     }
 
     public void addUser(User user) {
-        try {
-            inMemoryUserStorage.addUser(user);
-            return;
-        } catch (StorageException e) {
-            log.error(e.toString());
-        }
-        throw new StorageException("Bad request");
+        inMemoryUserStorage.addUser(user);
     }
 
     public void updateUser(User user) {
-        try {
             inMemoryUserStorage.updateUser(user);
-            return;
-        } catch (StorageException e) {
-            log.error(e.toString());
-            if (e.getMessage().equals("Invalid user.")) {
-                throw e;
-            }
-        }
-        throw new StorageException("Not found");
     }
 
     public Collection<User> getAllUsers() {
@@ -48,48 +33,23 @@ public class UserService {
     }
 
     public User getUserById(long id) {
-        try {
-            return inMemoryUserStorage.getUserById(id);
-        } catch (StorageException e) {
-            log.error(e.toString());
-            throw e;
-        }
+        return inMemoryUserStorage.getUserById(id);
     }
 
     public User addFriend(long id, long friendId) {
-        try {
-            inMemoryUserStorage.addFriend(id, friendId);
-            return inMemoryUserStorage.getUserById(friendId);
-        } catch (StorageException e) {
-            log.error(e.toString());
-            throw e;
-        }
+        inMemoryUserStorage.addFriend(id, friendId);
+        return inMemoryUserStorage.getUserById(friendId);
     }
 
     public Collection<User> getAllFriends(long id) {
-        try {
-            return inMemoryUserStorage.getAllFriends(id);
-        } catch (StorageException e) {
-            log.error(e.toString());
-            throw e;
-        }
+        return inMemoryUserStorage.getAllFriends(id);
     }
 
     public Collection<User> getCommonFriends(long id, long otherId) {
-        try {
-            return inMemoryUserStorage.getCommonFriends(id, otherId);
-        } catch (StorageException e) {
-            log.error(e.toString());
-            throw e;
-        }
+        return inMemoryUserStorage.getCommonFriends(id, otherId);
     }
 
     public User removeFriend(long id, long friendId) {
-        try {
-            return inMemoryUserStorage.removeFriend(id, friendId);
-        } catch (StorageException e) {
-            log.error(e.toString());
-            throw e;
-        }
+        return inMemoryUserStorage.removeFriend(id, friendId);
     }
 }
