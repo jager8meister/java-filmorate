@@ -27,12 +27,26 @@ public class UserController {
 
     @PostMapping
     public @ResponseBody ResponseEntity<User> addUser(@Valid @RequestBody User user) throws ValidationException {
-        return new ResponseEntity<>(user, service.addUser(user));
+        try {
+            service.addUser(user);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping
     public @ResponseBody ResponseEntity<User> updateUser(@Valid @RequestBody User user) throws ValidationException {
-        return new ResponseEntity<>(user, service.updateUser(user));
+        try {
+            service.updateUser(user);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            if (e.getMessage().equals("Invalid user.")) {
+                return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+            } else {
+                return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
+            }
+        }
     }
 
     @GetMapping
@@ -45,7 +59,7 @@ public class UserController {
         try {
             return new ResponseEntity<>(service.getUserById(id), HttpStatus.OK);
         } catch (StorageException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND );
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -84,4 +98,13 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleException(RuntimeException exception) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exception.getMessage());
+    }
+
+
 }

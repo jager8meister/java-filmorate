@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@Component
 public class User {
     private Long id;
     @Email

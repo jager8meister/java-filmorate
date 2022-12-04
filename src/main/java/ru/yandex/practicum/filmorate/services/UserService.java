@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.StorageException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -21,28 +20,27 @@ public class UserService {
         this.inMemoryUserStorage = inMemoryUserStorage;
     }
 
-    public HttpStatus addUser(User user) {
+    public void addUser(User user) {
         try {
             inMemoryUserStorage.addUser(user);
-            return HttpStatus.OK;
+            return;
         } catch (StorageException e) {
             log.error(e.toString());
         }
-        return HttpStatus.BAD_REQUEST;
+        throw new StorageException("Bad request");
     }
 
-    public HttpStatus updateUser(User user) {
+    public void updateUser(User user) {
         try {
             inMemoryUserStorage.updateUser(user);
-
-            return HttpStatus.OK;
+            return;
         } catch (StorageException e) {
             log.error(e.toString());
             if (e.getMessage().equals("Invalid user.")) {
-                return HttpStatus.BAD_REQUEST;
+                throw e;
             }
         }
-        return HttpStatus.NOT_FOUND;
+        throw new StorageException("Not found");
     }
 
     public Collection<User> getAllUsers() {

@@ -27,12 +27,26 @@ public class FilmController {
 
     @PostMapping
     public @ResponseBody ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) throws ValidationException {
-        return new ResponseEntity<>(film, service.addFilm(film));
+        try {
+            service.addFilm(film);
+            return new ResponseEntity<>(film, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(film, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping
     public @ResponseBody ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) throws ValidationException  {
-        return new ResponseEntity<>(film, service.updateFilm(film));
+        try {
+            service.updateFilm(film);
+            return new ResponseEntity<>(film, HttpStatus.OK);
+        } catch (Exception e) {
+            if (e.getMessage().equals("Invalid film.")) {
+                return new ResponseEntity<>(film, HttpStatus.INTERNAL_SERVER_ERROR);
+            } else {
+                return new ResponseEntity<>(film, HttpStatus.NOT_FOUND);
+            }
+        }
     }
 
     @GetMapping

@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@Component
 public class Film {
     private Long id;
     @NotBlank

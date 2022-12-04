@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.StorageException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -22,30 +21,30 @@ public class FilmService {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
     }
 
-    public HttpStatus addFilm(Film film) {
+    public void addFilm(Film film) {
         try {
             inMemoryFilmStorage.addFilm(film);
-            return  HttpStatus.OK;
+            return;
         } catch (StorageException e) {
             log.error(e.toString());
             if (e.getMessage().equals("Invalid film.")) {
-                return HttpStatus.INTERNAL_SERVER_ERROR;
+                throw e;
             }
         }
-        return HttpStatus.BAD_REQUEST;
+        throw new StorageException("Bad request");
     }
 
-    public HttpStatus updateFilm(Film film) throws ValidationException  {
+    public void updateFilm(Film film) throws ValidationException  {
         try {
             inMemoryFilmStorage.updateFilm(film);
-            return HttpStatus.OK;
+            return;
         } catch (StorageException e) {
             log.error(e.toString());
             if (e.getMessage().equals("Invalid film.")) {
-                return HttpStatus.INTERNAL_SERVER_ERROR;
+                throw e;
             }
         }
-        return HttpStatus.NOT_FOUND;
+        throw new StorageException("Bad request");
     }
 
     public Collection<Film> getAllFilms() {

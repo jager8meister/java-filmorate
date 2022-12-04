@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.comparator;
+package ru.yandex.practicum.filmorate.utils;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
