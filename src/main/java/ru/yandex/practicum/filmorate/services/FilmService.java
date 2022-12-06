@@ -16,7 +16,7 @@ import java.util.Collection;
 @Slf4j
 public class FilmService {
 
-    private FilmStorage inMemoryFilmStorage;
+    private final FilmStorage inMemoryFilmStorage;
 
     @Autowired
     public FilmService(FilmStorage inMemoryFilmStorage) {

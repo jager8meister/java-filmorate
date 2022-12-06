@@ -27,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
-    private Film checkAndSend(Film film) throws StorageException {
+    private Film checkAndSend(Film film) {
         try {
             if (FilmValidator.valid(film)) {
                 if (film.getId() == null) {
@@ -40,11 +40,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         catch (ValidationException e) {
             throw e;
         }
-        throw new StorageException("Invalid film.");
+        throw new ValidationException("Invalid film.");
     }
 
     @Override
-    public Film addFilm(Film film) throws StorageException {
+    public Film addFilm(Film film) {
         if (filmMap.containsKey(film.getId())) {
             throw new StorageException("Film already exists.");
         } else {

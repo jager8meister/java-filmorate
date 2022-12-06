@@ -15,7 +15,7 @@ import java.util.Collection;
 @Slf4j
 public class UserService {
 
-    private UserStorage inMemoryUserStorage;
+    private final UserStorage inMemoryUserStorage;
 
     @Autowired
     public UserService(UserStorage inMemoryUserStorage) {
