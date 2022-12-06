@@ -70,10 +70,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
+    @Override
     public Collection<Film> getAllFilms() {
         return filmMap.values();
     }
 
+    @Override
     public Film likeFilm(long id, long userId) {
         if (filmMap.containsKey(id)) {
             if (userId <= 0) {
@@ -86,6 +88,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
+    @Override
     public Film deleteLike(long id, long userId) {
         if (filmMap.containsKey(id)) {
             if (filmMap.get(id).getLikes().contains(userId)) {
@@ -99,6 +102,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
+    @Override
     public List<Film> getPopularCounted(int count) {
         List<Film> all = new ArrayList<>(filmMap.values());
         all.sort(new FilmComparator());
@@ -111,6 +115,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return res;
     }
 
+    @Override
     public Film getFilmById(long id) {
         if (filmMap.containsKey(id)) {
             return filmMap.get(id);
