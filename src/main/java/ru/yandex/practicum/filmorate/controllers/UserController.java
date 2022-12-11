@@ -28,6 +28,7 @@ public class UserController {
     @PostMapping
     public @ResponseBody ResponseEntity<User> addUser(@Valid @RequestBody User user) throws ValidationException {
         try {
+            if (user.getId() == null)
             service.addUser(user);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e) {

@@ -1,0 +1,116 @@
+package ru.yandex.practicum.filmorate.dao;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.StorageException;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storages.util.UserStorage;
+import ru.yandex.practicum.filmorate.validators.UserValidator;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Component
+@Qualifier("userDbStorage")
+public class UserDbStorage implements UserStorage {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private void checkUserDuplicates(User user) {
+        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        for (Map<String, Object> elem : res ) {
+            if (elem.get("EMAIL").equals(user.getEmail())
+            && elem.get("LOGIN").equals(user.getLogin())
+            && elem.get("BIRTHDAY").toString().equals(user.getBirthday().toString())) {
+                throw new StorageException("User already in the base");
+            }
+        }
+    }
+
+    private long getId(User user) {
+        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        for (Map<String, Object> elem : res ) {
+            if (elem.get("EMAIL").equals(user.getEmail())
+                    && elem.get("LOGIN").equals(user.getLogin())
+                    && elem.get("BIRTHDAY").toString().equals(user.getBirthday().toString())) {
+                return Long.parseLong(elem.get("ID").toString());
+            }
+        }
+        throw new StorageException("No such user in the base");
+    }
+
+    @Override
+    public User addUser(User user) {
+        if (UserValidator.valid(user)) {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("email", user.getEmail());
+            params.put("login", user.getLogin());
+            params.put("name", user.getName());
+            params.put("birthday", user.getBirthday());
+
+            SimpleJdbcInsert insertData = new
+                    SimpleJdbcInsert(jdbcTemplate).
+                    withTableName("usersBase").
+                    usingColumns("email", "login",
+                    "name", "birthday")
+                    .usingGeneratedKeyColumns("id");
+
+            checkUserDuplicates(user);
+            String res = insertData.executeAndReturnKey(user.toMap()).toString();
+            user.setId(getId(user));
+            return user;
+        }
+        return null;
+    }
+
+    @Override
+    public User updateUser(User user) {
+//        SimpleJdbcInsert
+        return null;
+    }
+
+    @Override
+    public void deleteUser(User user) {
+
+    }
+
+    @Override
+    public Collection<User> getAllUsers() {
+        return null;
+    }
+
+    @Override
+    public User getUserById(long id) {
+        return null;
+    }
+
+    @Override
+    public void addFriend(long id, long friendId) {
+
+    }
+
+    @Override
+    public Collection<User> getAllFriends(long id) {
+        return null;
+    }
+
+    @Override
+    public Collection<User> getCommonFriends(long id, long otherId) {
+        return null;
+    }
+
+    @Override
+    public User removeFriend(long id, long friendId) {
+        return null;
+    }
+}
