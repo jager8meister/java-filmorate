@@ -46,6 +46,7 @@ public class UserController {
             if (e.getMessage().equals("Invalid user.")) {
                 return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
             } else {
+                log.error(e.getMessage());
                 return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
             }
         }
