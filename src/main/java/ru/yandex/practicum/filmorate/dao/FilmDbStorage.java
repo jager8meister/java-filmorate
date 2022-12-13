@@ -10,9 +10,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.services.GenreService;
 import ru.yandex.practicum.filmorate.services.MpaService;
 import ru.yandex.practicum.filmorate.storages.util.FilmStorage;
 import ru.yandex.practicum.filmorate.utils.FilmComparator;
+import ru.yandex.practicum.filmorate.utils.GenreComparator;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
@@ -86,8 +88,12 @@ public class FilmDbStorage implements FilmStorage {
 
             String res = insertData.executeAndReturnKey(params).toString();
             film.setId(getId(film));
+            GenreService genreService = new GenreService(jdbcTemplate);
+
             if (film.getGenres() != null) {
                 for (Genre genre : film.getGenres()) {
+                    if (genre.getName() == null)
+                        genre = genreService.getGenreById(genre.getId());
                     jdbcTemplate.update("INSERT INTO GENRE (GENRE_ID, NAME, FILM_ID) VALUES (?, ?, ?)",
                             genre.getId(),
                             genre.getName(),
@@ -113,6 +119,9 @@ public class FilmDbStorage implements FilmStorage {
             if (film.getMpa() != null) {
                 sqlQuery += ", mpa_id = " + film.getMpa().getId();
             }
+            MpaService service = new MpaService(jdbcTemplate);
+            Mpa mpa = service.getMpaById(film.getMpa().getId());
+            film.setMpa(mpa);
             removeGenreByFilmId(film.getId());
 
             sqlQuery += "where id = " + film.getId();
@@ -122,8 +131,23 @@ public class FilmDbStorage implements FilmStorage {
                     film.getDescription(),
                     film.getReleaseDate(),
                     film.getDuration());
+
+            GenreService genreService = new GenreService(jdbcTemplate);
+            List<Genre> allFilmGenres = film.getGenres();
+            List<Genre> fullFilmGenres = new ArrayList<>();
+            for (Genre genre : allFilmGenres) {
+                if (genre.getName() == null)
+                    genre = genreService.getGenreById(genre.getId());
+                if (fullFilmGenres.contains(genre))
+                    continue;
+                fullFilmGenres.add(genre);
+            }
+            fullFilmGenres.sort(new GenreComparator());
+            film.setGenres(fullFilmGenres);
             if (film.getGenres() != null) {
                 for (Genre genre : film.getGenres()) {
+                    if (genre.getName() == null)
+                        genre = genreService.getGenreById(genre.getId());
                     jdbcTemplate.update("INSERT INTO GENRE (GENRE_ID, NAME, FILM_ID) VALUES (?, ?, ?)",
                             genre.getId(),
                             genre.getName(),
@@ -173,6 +197,16 @@ public class FilmDbStorage implements FilmStorage {
         Mpa mpa = service.getMpaById((Integer) elem.get("MPA_ID"));
         film.setMpa(mpa);
 
+        String sqlQuery = "SELECT genre_id, name FROM genre WHERE film_id = " + film.getId();
+        List<Map<String, Object>> raw = jdbcTemplate.queryForList(sqlQuery);
+        List<Genre> allFilmGenres = new ArrayList<>();
+        for (Map<String, Object> genreElem : raw) {
+            Genre genre = new Genre();
+            genre.setId((Integer) genreElem.get("genre_id"));
+            genre.setName((String) genreElem.get("name"));
+            allFilmGenres.add(genre);
+        }
+        film.setGenres(allFilmGenres);
         return film;
     }
 

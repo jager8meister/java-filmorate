@@ -34,6 +34,10 @@ CREATE TABLE IF NOT EXISTS genre(
     name varchar(255) not null,
     film_id integer
 );
+CREATE TABLE IF NOT EXISTS genreBase(
+    genre_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name varchar(255) not null
+);
 MERGE INTO mpa
     (mpa_id, name)
     KEY(mpa_id)
@@ -42,3 +46,12 @@ MERGE INTO mpa
            (3, 'PG-13'),
            (4, 'R'),
            (5, 'NC-17');
+MERGE INTO genreBase
+    (genre_id, name)
+    KEY(genre_id)
+    VALUES (1, 'Комедия'),
+           (2, 'Драма'),
+           (3, 'Мультфильм'),
+           (4, 'Триллер'),
+           (5, 'Документальный'),
+           (6, 'Боевик');

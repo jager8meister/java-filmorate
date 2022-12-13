@@ -9,11 +9,4 @@ import java.util.List;
 public class Genre {
     private int id;
     private String name;
-
-    public void setId(int id) {
-        this.id = id;
-        String[] genres = {"Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик"};
-        if (id > 0)
-            name = genres[id - 1];
-    }
 }
