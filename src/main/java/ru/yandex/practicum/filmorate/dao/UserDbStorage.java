@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.dao;
 
-import org.h2.jdbc.JdbcArray;
-import org.h2.value.ValueArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,9 +10,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.util.UserStorage;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
-import java.sql.Array;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -30,7 +25,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private void checkUserDuplicates(User user) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM usersBase" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("EMAIL").equals(user.getEmail())
             && elem.get("LOGIN").equals(user.getLogin())
@@ -41,7 +36,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private long getId(User user) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM usersBase" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("EMAIL").equals(user.getEmail())
                     && elem.get("LOGIN").equals(user.getLogin())
@@ -53,7 +48,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private void checkId(long id) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM usersBase" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 return ;
@@ -103,7 +98,6 @@ public class UserDbStorage implements UserStorage {
                     , user.getName()
                     , user.getBirthday()
                     , user.getId());
-//            checkId(user.getId());
             return user;
         }
         throw new StorageException("Invalid user.");
@@ -116,9 +110,9 @@ public class UserDbStorage implements UserStorage {
             check.getLogin().equals(user.getLogin()) &&
             check.getEmail().equals(user.getEmail()) &&
             check.getBirthday().equals(user.getBirthday())) {
-            jdbcTemplate.queryForList("DELETE FROM usersBase WHERE id = " + user.getId());
-            jdbcTemplate.queryForList("DELETE FROM friends WHERE user_id = " + user.getId());
-            jdbcTemplate.queryForList("DELETE FROM friends WHERE friend_id = " + user.getId());
+            jdbcTemplate.execute("DELETE FROM usersBase WHERE id = " + user.getId());
+            jdbcTemplate.execute("DELETE FROM friends WHERE user_id = " + user.getId());
+            jdbcTemplate.execute("DELETE FROM friends WHERE friend_id = " + user.getId());
         } else {
             throw new StorageException("Invalid user");
         }
@@ -174,10 +168,6 @@ public class UserDbStorage implements UserStorage {
         params.put("user_id", id);
         params.put("friend_id", friendId);
         insertData.execute(params);
-//        params = new HashMap<>();
-//        params.put("user_id", friendId);
-//        params.put("friend_id", id);
-//        insertData.execute(params);
     }
 
     private Set<Long> getFriendsIds(long id) {

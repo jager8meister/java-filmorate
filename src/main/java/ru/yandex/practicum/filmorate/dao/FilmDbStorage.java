@@ -9,14 +9,12 @@ import ru.yandex.practicum.filmorate.exceptions.StorageException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.services.GenreService;
 import ru.yandex.practicum.filmorate.services.MpaService;
 import ru.yandex.practicum.filmorate.storages.util.FilmStorage;
 import ru.yandex.practicum.filmorate.utils.FilmComparator;
 import ru.yandex.practicum.filmorate.utils.GenreComparator;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
-import ru.yandex.practicum.filmorate.validators.UserValidator;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -166,8 +164,8 @@ public class FilmDbStorage implements FilmStorage {
             check.getDescription().equals(film.getDescription()) &&
             check.getReleaseDate().equals(film.getReleaseDate()) &&
             check.getDuration().equals(film.getDuration())) {
-            jdbcTemplate.queryForList("DELETE FROM filmsBase WHERE id = " + film.getId());
-            jdbcTemplate.queryForList("DELETE FROM likes WHERE film_id = " + film.getId());
+            jdbcTemplate.execute("DELETE FROM filmsBase WHERE id = " + film.getId());
+            jdbcTemplate.execute("DELETE FROM likes WHERE film_id = " + film.getId());
             removeGenreByFilmId(film.getId());
         } else {
             throw new StorageException("Invalid film");
@@ -176,7 +174,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private Set<Long> getLikesIds(long id) {
         Set<Long> ids = new HashSet<>();
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT user_id FROM filmsBase WHERE film_id = " + id);
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT user_id FROM filmsBase WHERE film_id = " + id);
         for (Map<String, Object> elem : res) {
             Long friend = Long.parseLong(elem.get("user_id").toString());
             ids.add(friend);
@@ -191,8 +189,6 @@ public class FilmDbStorage implements FilmStorage {
         film.setDuration(Integer.valueOf(elem.get("duration").toString()));
         film.setReleaseDate(LocalDate.parse(elem.get("release_date").toString()));
         film.setId(Long.parseLong(elem.get("id").toString()));
-//        Mpa mpa = new Mpa();
-//        mpa.setId((Integer) elem.get("MPA_ID"));
         MpaService service = new MpaService(jdbcTemplate);
         Mpa mpa = service.getMpaById((Integer) elem.get("MPA_ID"));
         film.setMpa(mpa);
@@ -212,7 +208,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(long id) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 Film film = getFilmFromBaseElem(elem);
@@ -225,7 +221,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularCounted(int count) {
         List<Film> all = new ArrayList<>();
-        List<Map<String, Object>> raw = this.jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
         for (Map<String, Object> elem : raw ) {
             Film film = getFilmFromBaseElem(elem);
             all.add(film);
@@ -270,7 +266,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> getAllFilms() {
         List<Film> res = new ArrayList<>();
-        List<Map<String, Object>> raw = this.jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
         for (Map<String, Object> elem : raw ) {
             Film film = getFilmFromBaseElem(elem);
             res.add(film);
