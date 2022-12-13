@@ -16,6 +16,8 @@
 	<properties>
 		<java.version>11</java.version>
 		<spring.messaging.version>5.3.24</spring.messaging.version>
+		<spring.boot.starter.data.jpa>2.7.6</spring.boot.starter.data.jpa>
+		<h2.db.version>2.1.214</h2.db.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -45,13 +47,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<version>2.7.6</version>
+			<version>${spring.boot.starter.data.jpa}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>2.1.214</version>
-<!--			<scope>runtime</scope>-->
+			<version>${h2.db.version}</version>
 		</dependency>
 	</dependencies>
 

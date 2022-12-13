@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.services.GenreService;
 import ru.yandex.practicum.filmorate.services.MpaService;
 import ru.yandex.practicum.filmorate.storages.util.FilmStorage;
 import ru.yandex.practicum.filmorate.utils.FilmComparator;
-import ru.yandex.practicum.filmorate.utils.GenreComparator;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
 import java.time.LocalDate;
@@ -31,7 +30,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void checkFilmDuplicates(Film film) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("film_name").equals(film.getName()) &&
                 elem.get("description").equals(film.getDescription()) &&
@@ -43,7 +42,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private long getId(Film film) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("film_name").equals(film.getName().toString()) &&
                     elem.get("description").equals(film.getDescription().toString()) &&
@@ -56,7 +55,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void checkId(long id) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 return ;
@@ -70,7 +69,7 @@ public class FilmDbStorage implements FilmStorage {
         if (FilmValidator.valid(film)) {
             SimpleJdbcInsert insertData = new
                     SimpleJdbcInsert(jdbcTemplate).
-                    withTableName("filmsBase").
+                    withTableName("films").
                     usingColumns("FILM_NAME", "DESCRIPTION",
                             "RELEASE_DATE", "DURATION", "MPA_ID")
                     .usingGeneratedKeyColumns("id");
@@ -112,7 +111,7 @@ public class FilmDbStorage implements FilmStorage {
         if (FilmValidator.valid(film)) {
             checkId(film.getId());
 
-            String sqlQuery = "update filmsBase set " +
+            String sqlQuery = "update films set " +
                     "film_name = ?, description = ?, release_date = ?, duration = ? ";
             if (film.getMpa() != null) {
                 sqlQuery += ", mpa_id = " + film.getMpa().getId();
@@ -140,7 +139,6 @@ public class FilmDbStorage implements FilmStorage {
                     continue;
                 fullFilmGenres.add(genre);
             }
-            fullFilmGenres.sort(new GenreComparator());
             film.setGenres(fullFilmGenres);
             if (film.getGenres() != null) {
                 for (Genre genre : film.getGenres()) {
@@ -164,7 +162,7 @@ public class FilmDbStorage implements FilmStorage {
             check.getDescription().equals(film.getDescription()) &&
             check.getReleaseDate().equals(film.getReleaseDate()) &&
             check.getDuration().equals(film.getDuration())) {
-            jdbcTemplate.execute("DELETE FROM filmsBase WHERE id = " + film.getId());
+            jdbcTemplate.execute("DELETE FROM films WHERE id = " + film.getId());
             jdbcTemplate.execute("DELETE FROM likes WHERE film_id = " + film.getId());
             removeGenreByFilmId(film.getId());
         } else {
@@ -174,7 +172,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private Set<Long> getLikesIds(long id) {
         Set<Long> ids = new HashSet<>();
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT user_id FROM filmsBase WHERE film_id = " + id);
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT user_id FROM likes WHERE film_id = " + id);
         for (Map<String, Object> elem : res) {
             Long friend = Long.parseLong(elem.get("user_id").toString());
             ids.add(friend);
@@ -203,25 +201,26 @@ public class FilmDbStorage implements FilmStorage {
             allFilmGenres.add(genre);
         }
         film.setGenres(allFilmGenres);
+        film.setLikes(getLikesIds(film.getId()));
         return film;
     }
 
     @Override
     public Film getFilmById(long id) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 Film film = getFilmFromBaseElem(elem);
                 return film;
             }
         }
-        throw new StorageException("No user with id " + id);
+        throw new StorageException("No film with id " + id);
     }
 
     @Override
     public List<Film> getPopularCounted(int count) {
         List<Film> all = new ArrayList<>();
-        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : raw ) {
             Film film = getFilmFromBaseElem(elem);
             all.add(film);
@@ -250,6 +249,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film likeFilm(long id, long userId) {
         checkId(id);
+        if (userId < 1) {
+            throw new StorageException("Invalid user id");
+        }
         SimpleJdbcInsert insertData = new
                 SimpleJdbcInsert(jdbcTemplate).
                 withTableName("likes").
@@ -266,7 +268,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> getAllFilms() {
         List<Film> res = new ArrayList<>();
-        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM filmsBase" );
+        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : raw ) {
             Film film = getFilmFromBaseElem(elem);
             res.add(film);

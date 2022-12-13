@@ -6,10 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.services.GenreService;
-import ru.yandex.practicum.filmorate.services.MpaService;
 
 import java.util.Collection;
 
@@ -30,12 +28,12 @@ public class GenreController {
         try {
             return new ResponseEntity<>(service.getGenreById(id), HttpStatus.OK);
         } catch (ValidationException e) {
+            log.error("Invalid genre id");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
     }
 
-    @GetMapping()
+    @GetMapping
     public @ResponseBody ResponseEntity<Collection<Genre>> getAllGenres() {
         return new ResponseEntity<>(service.getAllGenres(), HttpStatus.OK);
     }

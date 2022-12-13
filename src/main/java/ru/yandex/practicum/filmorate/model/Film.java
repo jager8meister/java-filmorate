@@ -17,6 +17,7 @@ public class Film {
     private Set<Long> likes = new HashSet<>();
     private Mpa mpa;
     private List<Genre> genres = new ArrayList<>();
+
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
         values.put("film_name", name);

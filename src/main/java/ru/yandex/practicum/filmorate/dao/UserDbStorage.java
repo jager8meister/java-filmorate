@@ -25,7 +25,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private void checkUserDuplicates(User user) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM users" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("EMAIL").equals(user.getEmail())
             && elem.get("LOGIN").equals(user.getLogin())
@@ -36,7 +36,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private long getId(User user) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM users" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("EMAIL").equals(user.getEmail())
                     && elem.get("LOGIN").equals(user.getLogin())
@@ -48,7 +48,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private void checkId(long id) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM users" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 return ;
@@ -69,7 +69,7 @@ public class UserDbStorage implements UserStorage {
 
             SimpleJdbcInsert insertData = new
                     SimpleJdbcInsert(jdbcTemplate).
-                    withTableName("usersBase").
+                    withTableName("users").
                     usingColumns("email", "login",
                     "name", "birthday")
                     .usingGeneratedKeyColumns("id");
@@ -88,7 +88,7 @@ public class UserDbStorage implements UserStorage {
         if (UserValidator.valid(user)) {
             checkId(user.getId());
 
-            String sqlQuery = "update usersBase set " +
+            String sqlQuery = "update users set " +
                     "email = ?, login = ?, name = ?, birthday = ? " +
                     "where id = ?";
 
@@ -110,7 +110,7 @@ public class UserDbStorage implements UserStorage {
             check.getLogin().equals(user.getLogin()) &&
             check.getEmail().equals(user.getEmail()) &&
             check.getBirthday().equals(user.getBirthday())) {
-            jdbcTemplate.execute("DELETE FROM usersBase WHERE id = " + user.getId());
+            jdbcTemplate.execute("DELETE FROM users WHERE id = " + user.getId());
             jdbcTemplate.execute("DELETE FROM friends WHERE user_id = " + user.getId());
             jdbcTemplate.execute("DELETE FROM friends WHERE friend_id = " + user.getId());
         } else {
@@ -121,7 +121,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<User> getAllUsers() {
         List<User> res = new ArrayList<>();
-        List<Map<String, Object>> raw = this.jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        List<Map<String, Object>> raw = this.jdbcTemplate.queryForList("SELECT * FROM users" );
         for (Map<String, Object> elem : raw ) {
             User user = getUserFromBaseElem(elem);
             res.add(user);
@@ -142,7 +142,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(long id) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM usersBase" );
+        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM users" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 User user = getUserFromBaseElem(elem);

@@ -5,9 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.services.FilmService;
 import ru.yandex.practicum.filmorate.services.MpaService;
 
 import java.util.Collection;
@@ -34,6 +32,7 @@ public class MpaController {
         try {
             return new ResponseEntity<>(service.getMpaById(id), HttpStatus.OK);
         } catch (RuntimeException e) {
+            log.error("invalid mpa id");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
