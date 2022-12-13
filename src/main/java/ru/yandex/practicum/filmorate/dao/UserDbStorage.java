@@ -91,12 +91,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User updateUser(User user) {
         if (UserValidator.valid(user)) {
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("id", user.getId());
-            params.put("email", user.getEmail());
-            params.put("login", user.getLogin());
-            params.put("name", user.getName());
-            params.put("birthday", user.getBirthday());
+            checkId(user.getId());
 
             String sqlQuery = "update usersBase set " +
                     "email = ?, login = ?, name = ?, birthday = ? " +
@@ -108,7 +103,7 @@ public class UserDbStorage implements UserStorage {
                     , user.getName()
                     , user.getBirthday()
                     , user.getId());
-            checkId(user.getId());
+//            checkId(user.getId());
             return user;
         }
         throw new StorageException("Invalid user.");
