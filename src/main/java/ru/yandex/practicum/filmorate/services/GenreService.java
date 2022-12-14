@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -33,13 +34,6 @@ public class GenreService {
 
     public Collection<Genre> getAllGenres() {
         List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM genres");
-        List<Genre> all = new ArrayList<>();
-        for (Map<String, Object> elem : raw) {
-            Genre genre = new Genre();
-            genre.setId((Integer) elem.get("genre_id"));
-            genre.setName((String) elem.get("name"));
-            all.add(genre);
-        }
-        return all;
+        return FilmDbStorage.getAllFilmGenres(raw);
     }
 }

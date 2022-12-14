@@ -77,17 +77,7 @@ public class FilmDbStorage implements FilmStorage {
             insertData.execute(film.toMap());
             film.setId(getId(film));
             GenreService genreService = new GenreService(jdbcTemplate);
-            if (film.getGenres() != null) {
-                for (Genre genre : film.getGenres()) {
-                    if (genre.getName() == null)
-                        genre = genreService.getGenreById(genre.getId());
-                    jdbcTemplate.update("INSERT INTO GENRE (GENRE_ID, NAME, FILM_ID) VALUES (?, ?, ?)",
-                            genre.getId(),
-                            genre.getName(),
-                            film.getId());
-                }
-            }
-            return film;
+            return getFilm(film, genreService);
         }
         throw new StorageException("Invalid film.");
     }
@@ -126,19 +116,23 @@ public class FilmDbStorage implements FilmStorage {
                 fullFilmGenres.add(genre);
             }
             film.setGenres(fullFilmGenres);
-            if (film.getGenres() != null) {
-                for (Genre genre : film.getGenres()) {
-                    if (genre.getName() == null)
-                        genre = genreService.getGenreById(genre.getId());
-                    jdbcTemplate.update("INSERT INTO GENRE (GENRE_ID, NAME, FILM_ID) VALUES (?, ?, ?)",
-                            genre.getId(),
-                            genre.getName(),
-                            film.getId());
-                }
-            }
-            return film;
+            return getFilm(film, genreService);
         }
         throw new StorageException("Invalid film.");
+    }
+
+    private Film getFilm(Film film, GenreService genreService) {
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                if (genre.getName() == null)
+                    genre = genreService.getGenreById(genre.getId());
+                jdbcTemplate.update("INSERT INTO GENRE (GENRE_ID, NAME, FILM_ID) VALUES (?, ?, ?)",
+                        genre.getId(),
+                        genre.getName(),
+                        film.getId());
+            }
+        }
+        return film;
     }
 
     @Override
@@ -178,6 +172,13 @@ public class FilmDbStorage implements FilmStorage {
         film.setMpa(mpa);
         String sqlQuery = "SELECT genre_id, name FROM genre WHERE film_id = " + film.getId();
         List<Map<String, Object>> raw = jdbcTemplate.queryForList(sqlQuery);
+        List<Genre> allFilmGenres = getAllFilmGenres(raw);
+        film.setGenres(allFilmGenres);
+        film.setLikes(getLikesIds(film.getId()));
+        return film;
+    }
+
+    public static List<Genre> getAllFilmGenres(List<Map<String, Object>> raw) {
         List<Genre> allFilmGenres = new ArrayList<>();
         for (Map<String, Object> genreElem : raw) {
             Genre genre = new Genre();
@@ -185,9 +186,7 @@ public class FilmDbStorage implements FilmStorage {
             genre.setName((String) genreElem.get("name"));
             allFilmGenres.add(genre);
         }
-        film.setGenres(allFilmGenres);
-        film.setLikes(getLikesIds(film.getId()));
-        return film;
+        return allFilmGenres;
     }
 
     @Override
