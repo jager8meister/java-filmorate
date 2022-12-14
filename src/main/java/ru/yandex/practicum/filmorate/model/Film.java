@@ -24,7 +24,8 @@ public class Film {
         values.put("description", description);
         values.put("release_date", releaseDate);
         values.put("duration", duration);
-
+        if (mpa != null)
+            values.put("mpa_id", getMpa().getId());
         return values;
     }
 }

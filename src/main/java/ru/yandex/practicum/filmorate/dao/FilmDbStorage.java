@@ -30,7 +30,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void checkFilmDuplicates(Film film) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM films" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("film_name").equals(film.getName()) &&
                 elem.get("description").equals(film.getDescription()) &&
@@ -42,7 +42,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private long getId(Film film) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM films" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("film_name").equals(film.getName()) &&
                     elem.get("description").equals(film.getDescription()) &&
@@ -55,10 +55,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void checkId(long id) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM films" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
-                return ;
+                return;
             }
         }
         throw new StorageException("No film with id " + id);
@@ -73,20 +73,10 @@ public class FilmDbStorage implements FilmStorage {
                     usingColumns("FILM_NAME", "DESCRIPTION",
                             "RELEASE_DATE", "DURATION", "MPA_ID")
                     .usingGeneratedKeyColumns("id");
-
             checkFilmDuplicates(film);
-            Map<String, Object> params = new HashMap<>();
-            params.put("FILM_NAME", film.getName());
-            params.put("DESCRIPTION", film.getDescription());
-            params.put("RELEASE_DATE", film.getReleaseDate());
-            params.put("DURATION", film.getDuration());
-            if (film.getMpa() != null)
-                params.put("MPA_ID", film.getMpa().getId());
-
-            insertData.executeAndReturnKey(params).toString();
+            insertData.execute(film.toMap());
             film.setId(getId(film));
             GenreService genreService = new GenreService(jdbcTemplate);
-
             if (film.getGenres() != null) {
                 for (Genre genre : film.getGenres()) {
                     if (genre.getName() == null)
@@ -110,7 +100,6 @@ public class FilmDbStorage implements FilmStorage {
     public Film updateFilm(Film film) throws StorageException {
         if (FilmValidator.valid(film)) {
             checkId(film.getId());
-
             String sqlQuery = "update films set " +
                     "film_name = ?, description = ?, release_date = ?, duration = ? ";
             if (film.getMpa() != null) {
@@ -120,15 +109,12 @@ public class FilmDbStorage implements FilmStorage {
             Mpa mpa = service.getMpaById(film.getMpa().getId());
             film.setMpa(mpa);
             removeGenreByFilmId(film.getId());
-
             sqlQuery += "where id = " + film.getId();
-
             jdbcTemplate.update(sqlQuery,
                     film.getName(),
                     film.getDescription(),
                     film.getReleaseDate(),
                     film.getDuration());
-
             GenreService genreService = new GenreService(jdbcTemplate);
             List<Genre> allFilmGenres = film.getGenres();
             List<Genre> fullFilmGenres = new ArrayList<>();
@@ -190,7 +176,6 @@ public class FilmDbStorage implements FilmStorage {
         MpaService service = new MpaService(jdbcTemplate);
         Mpa mpa = service.getMpaById((Integer) elem.get("MPA_ID"));
         film.setMpa(mpa);
-
         String sqlQuery = "SELECT genre_id, name FROM genre WHERE film_id = " + film.getId();
         List<Map<String, Object>> raw = jdbcTemplate.queryForList(sqlQuery);
         List<Genre> allFilmGenres = new ArrayList<>();
@@ -210,8 +195,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
-                Film film = getFilmFromBaseElem(elem);
-                return film;
+                return getFilmFromBaseElem(elem);
             }
         }
         throw new StorageException("No film with id " + id);
@@ -219,20 +203,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularCounted(int count) {
-        List<Film> all = new ArrayList<>();
-        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM films" );
-        for (Map<String, Object> elem : raw ) {
-            Film film = getFilmFromBaseElem(elem);
-            all.add(film);
-        }
+        List<Film> all = (List<Film>) getAllFilms();
         all.sort(new FilmComparator());
-        if (count < raw.size()) {
-            Set<Film> ss = new HashSet<>();
-            ss.addAll(all.subList(0, count));
+        if (count < all.size()) {
+            Set<Film> ss = new HashSet<>(all.subList(0, count));
             return new ArrayList<>(ss);
         } else {
-            Set<Film> ss = new HashSet<>();
-            ss.addAll(all.subList(0, raw.size()));
+            Set<Film> ss = new HashSet<>(all.subList(0, all.size()));
             return new ArrayList<>(ss);
         }
     }
@@ -257,7 +234,6 @@ public class FilmDbStorage implements FilmStorage {
                 withTableName("likes").
                 usingColumns("user_id", "film_id")
                 .usingGeneratedKeyColumns("id");
-
         Map<String, Long> params = new HashMap<>();
         params.put("film_id", id);
         params.put("user_id", userId);

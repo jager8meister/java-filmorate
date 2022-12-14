@@ -61,23 +61,15 @@ public class UserDbStorage implements UserStorage {
     public User addUser(User user) {
         if (UserValidator.valid(user)) {
             user = UserValidator.checkName(user);
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("email", user.getEmail());
-            params.put("login", user.getLogin());
-            params.put("name", user.getName());
-            params.put("birthday", user.getBirthday());
-
             SimpleJdbcInsert insertData = new
                     SimpleJdbcInsert(jdbcTemplate).
                     withTableName("users").
                     usingColumns("email", "login",
                     "name", "birthday")
                     .usingGeneratedKeyColumns("id");
-
             checkUserDuplicates(user);
-            String res = insertData.executeAndReturnKey(user.toMap()).toString();
+            insertData.executeAndReturnKey(user.toMap()).toString();
             user.setId(getId(user));
-
             return user;
         }
         throw new StorageException("Invalid user.");
@@ -87,11 +79,9 @@ public class UserDbStorage implements UserStorage {
     public User updateUser(User user) {
         if (UserValidator.valid(user)) {
             checkId(user.getId());
-
             String sqlQuery = "update users set " +
                     "email = ?, login = ?, name = ?, birthday = ? " +
                     "where id = ?";
-
             jdbcTemplate.update(sqlQuery
                     , user.getEmail()
                     , user.getLogin()
@@ -121,7 +111,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<User> getAllUsers() {
         List<User> res = new ArrayList<>();
-        List<Map<String, Object>> raw = this.jdbcTemplate.queryForList("SELECT * FROM users" );
+        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM users" );
         for (Map<String, Object> elem : raw ) {
             User user = getUserFromBaseElem(elem);
             res.add(user);
@@ -142,11 +132,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(long id) {
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM users" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM users" );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
-                User user = getUserFromBaseElem(elem);
-                return user;
+                return getUserFromBaseElem(elem);
             }
         }
         throw new StorageException("No user with id " + id);
@@ -157,13 +146,11 @@ public class UserDbStorage implements UserStorage {
     public void addFriend(long id, long friendId) {
         checkId(id);
         checkId(friendId);
-
         SimpleJdbcInsert insertData = new
                 SimpleJdbcInsert(jdbcTemplate).
                 withTableName("friends").
                 usingColumns("user_id", "friend_id")
                 .usingGeneratedKeyColumns("id");
-
         Map<String, Long> params = new HashMap<>();
         params.put("user_id", id);
         params.put("friend_id", friendId);
@@ -172,7 +159,7 @@ public class UserDbStorage implements UserStorage {
 
     private Set<Long> getFriendsIds(long id) {
         Set<Long> ids = new HashSet<>();
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT friend_id FROM friends WHERE USER_ID = " + id);
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT friend_id FROM friends WHERE USER_ID = " + id);
         for (Map<String, Object> elem : res) {
             Long friend = Long.parseLong(elem.get("friend_id").toString());
             ids.add(friend);
@@ -183,7 +170,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<User> getAllFriends(long id) {
         checkId(id);
-        List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT friend_id FROM friends WHERE USER_ID = " + id);
+        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT friend_id FROM friends WHERE USER_ID = " + id);
         Set<User> ids = new HashSet<>();
         for (Map<String, Object> elem : res) {
             Long friend = Long.parseLong(elem.get("friend_id").toString());

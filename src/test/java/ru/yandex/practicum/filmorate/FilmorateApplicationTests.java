@@ -138,5 +138,6 @@ class FilmorateApplicationTests {
 		Film finalFilmTest1 = filmTest;
 		assertThrows(StorageException.class,
 				()->{filmStorage.updateFilm(finalFilmTest1);});
+
 	}
 }
