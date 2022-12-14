@@ -23,6 +23,7 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final String selectFromFilms = "SELECT * FROM films";
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
@@ -30,7 +31,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void checkFilmDuplicates(Film film) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromFilms );
         for (Map<String, Object> elem : res ) {
             if (elem.get("film_name").equals(film.getName()) &&
                 elem.get("description").equals(film.getDescription()) &&
@@ -42,7 +43,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private long getId(Film film) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromFilms );
         for (Map<String, Object> elem : res ) {
             if (elem.get("film_name").equals(film.getName()) &&
                     elem.get("description").equals(film.getDescription()) &&
@@ -55,7 +56,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void checkId(long id) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromFilms );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 return;
@@ -191,7 +192,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(long id) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM films" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromFilms );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 return getFilmFromBaseElem(elem);
@@ -243,7 +244,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> getAllFilms() {
         List<Film> res = new ArrayList<>();
-        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM films" );
+        List<Map<String, Object>> raw = jdbcTemplate.queryForList(selectFromFilms );
         for (Map<String, Object> elem : raw ) {
             Film film = getFilmFromBaseElem(elem);
             res.add(film);

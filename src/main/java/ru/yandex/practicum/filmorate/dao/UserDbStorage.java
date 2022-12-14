@@ -17,6 +17,7 @@ import java.util.*;
 @Qualifier("userDbStorage")
 public class UserDbStorage implements UserStorage {
 
+    private final String selectFromUsers = "SELECT * FROM users";
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -25,7 +26,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private void checkUserDuplicates(User user) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM users" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromUsers );
         for (Map<String, Object> elem : res ) {
             if (elem.get("EMAIL").equals(user.getEmail())
             && elem.get("LOGIN").equals(user.getLogin())
@@ -36,7 +37,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private long getId(User user) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM users" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromUsers );
         for (Map<String, Object> elem : res ) {
             if (elem.get("EMAIL").equals(user.getEmail())
                     && elem.get("LOGIN").equals(user.getLogin())
@@ -48,7 +49,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private void checkId(long id) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM users" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromUsers );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 return ;
@@ -111,7 +112,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<User> getAllUsers() {
         List<User> res = new ArrayList<>();
-        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM users" );
+        List<Map<String, Object>> raw = jdbcTemplate.queryForList(selectFromUsers );
         for (Map<String, Object> elem : raw ) {
             User user = getUserFromBaseElem(elem);
             res.add(user);
@@ -132,7 +133,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(long id) {
-        List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT * FROM users" );
+        List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromUsers );
         for (Map<String, Object> elem : res ) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
                 return getUserFromBaseElem(elem);
