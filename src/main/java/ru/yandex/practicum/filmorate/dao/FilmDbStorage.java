@@ -44,8 +44,8 @@ public class FilmDbStorage implements FilmStorage {
     private long getId(Film film) {
         List<Map<String, Object>> res = this.jdbcTemplate.queryForList("SELECT * FROM films" );
         for (Map<String, Object> elem : res ) {
-            if (elem.get("film_name").equals(film.getName().toString()) &&
-                    elem.get("description").equals(film.getDescription().toString()) &&
+            if (elem.get("film_name").equals(film.getName()) &&
+                    elem.get("description").equals(film.getDescription()) &&
                     elem.get("release_date").equals( java.sql.Date.valueOf(film.getReleaseDate())) &&
                     elem.get("duration").equals(film.getDuration())) {
                 return Long.parseLong(elem.get("ID").toString());
@@ -83,7 +83,7 @@ public class FilmDbStorage implements FilmStorage {
             if (film.getMpa() != null)
                 params.put("MPA_ID", film.getMpa().getId());
 
-            String res = insertData.executeAndReturnKey(params).toString();
+            insertData.executeAndReturnKey(params).toString();
             film.setId(getId(film));
             GenreService genreService = new GenreService(jdbcTemplate);
 

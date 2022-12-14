@@ -91,6 +91,19 @@ class FilmorateApplicationTests {
 		finalUserTest.setId(1000L);
 		assertThrows(StorageException.class,
 				()->{userStorage.addUser(finalUserTest);});
+
+		assertThat(userStorage.getAllFriends(1).size()).isEqualTo(0);
+
+		userTest = new User();
+		userTest.setEmail("test@m.com");
+		userTest.setBirthday(LocalDate.of(1998, 10, 10));
+		userTest.setLogin("Suqqq");
+		userTest.setName("Wop");
+
+		userStorage.addUser(userTest);
+		userStorage.addFriend(1, 2);
+		assertThat(userStorage.getAllFriends(1).size()).isEqualTo(1);
+		assertThat(userStorage.getAllFriends(2).size()).isEqualTo(0);
 	}
 
 	@Test
