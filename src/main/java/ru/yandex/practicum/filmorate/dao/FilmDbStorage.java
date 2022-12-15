@@ -33,22 +33,23 @@ public class FilmDbStorage implements FilmStorage {
     private void checkFilmDuplicates(Film film) {
         List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromFilms);
         for (Map<String, Object> elem : res) {
-            if (elem.get("film_name").equals(film.getName()) &&
-                elem.get("description").equals(film.getDescription()) &&
-                elem.get("release_date").equals(film.getReleaseDate()) &&
-                elem.get("duration").equals(film.getDuration())) {
+            if (isFilm(film, elem)) {
                 throw new StorageException("Film already in the base");
             }
         }
     }
 
+    private static boolean isFilm(Film film, Map<String, Object> elem) {
+        return elem.get("film_name").equals(film.getName()) &&
+                elem.get("description").equals(film.getDescription()) &&
+                elem.get("release_date").equals(java.sql.Date.valueOf(film.getReleaseDate())) &&
+                elem.get("duration").equals(film.getDuration());
+    }
+
     private long getId(Film film) {
         List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromFilms);
         for (Map<String, Object> elem : res) {
-            if (elem.get("film_name").equals(film.getName()) &&
-                    elem.get("description").equals(film.getDescription()) &&
-                    elem.get("release_date").equals( java.sql.Date.valueOf(film.getReleaseDate())) &&
-                    elem.get("duration").equals(film.getDuration())) {
+            if (isFilm(film, elem)) {
                 return Long.parseLong(elem.get("ID").toString());
             }
         }
