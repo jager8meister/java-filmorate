@@ -52,7 +52,7 @@ public class UserDbStorage implements UserStorage {
         List<Map<String, Object>> res = jdbcTemplate.queryForList(selectFromUsers);
         for (Map<String, Object> elem : res) {
             if (elem.get("ID").toString().equals(String.valueOf(id))) {
-                return ;
+                return;
             }
         }
         throw new StorageException("No user with id " + id);
@@ -65,11 +65,10 @@ public class UserDbStorage implements UserStorage {
             SimpleJdbcInsert insertData = new
                     SimpleJdbcInsert(jdbcTemplate).
                     withTableName("users").
-                    usingColumns("email", "login",
-                    "name", "birthday")
+                    usingColumns("email", "login", "name", "birthday")
                     .usingGeneratedKeyColumns("id");
             checkUserDuplicates(user);
-            insertData.executeAndReturnKey(user.toMap()).toString();
+            insertData.executeAndReturnKey(user.toMap());
             user.setId(getId(user));
             return user;
         }
@@ -174,7 +173,7 @@ public class UserDbStorage implements UserStorage {
         List<Map<String, Object>> res = jdbcTemplate.queryForList("SELECT friend_id FROM friends WHERE USER_ID = " + id);
         Set<User> ids = new HashSet<>();
         for (Map<String, Object> elem : res) {
-            Long friend = Long.parseLong(elem.get("friend_id").toString());
+            long friend = Long.parseLong(elem.get("friend_id").toString());
             ids.add(getUserById(friend));
         }
         return ids;

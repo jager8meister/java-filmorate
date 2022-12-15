@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -16,6 +15,8 @@ import java.util.Map;
 public class GenreService {
 
     private final JdbcTemplate jdbcTemplate;
+    final int minimalGenreIndex = 1;
+    final int maximumGenreIndex = 6;
 
     @Autowired
     public GenreService(JdbcTemplate jdbcTemplate) {
@@ -23,7 +24,7 @@ public class GenreService {
     }
 
     public Genre getGenreById(int id) {
-        if (id < 1 || id > 6)
+        if (id < minimalGenreIndex || id > maximumGenreIndex)
             throw new ValidationException("Invalid genre id");
         Map<String, Object> raw = jdbcTemplate.queryForMap("SELECT name FROM genres WHERE genre_id = " + id);
         Genre genre = new Genre();
