@@ -111,10 +111,12 @@ public class FilmDbStorage implements FilmStorage {
             List<Genre> allFilmGenres = film.getGenres();
             List<Genre> fullFilmGenres = new ArrayList<>();
             for (Genre genre : allFilmGenres) {
-                if (genre.getName() == null)
+                if (genre.getName() == null) {
                     genre = genreService.getGenreById(genre.getId());
-                if (fullFilmGenres.contains(genre))
+                }
+                if (fullFilmGenres.contains(genre)) {
                     continue;
+                }
                 fullFilmGenres.add(genre);
             }
             film.setGenres(fullFilmGenres);
@@ -126,8 +128,9 @@ public class FilmDbStorage implements FilmStorage {
     private Film getFilm(Film film, GenreService genreService) {
         if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
-                if (genre.getName() == null)
+                if (genre.getName() == null) {
                     genre = genreService.getGenreById(genre.getId());
+                }
                 jdbcTemplate.update("INSERT INTO GENRE (GENRE_ID, NAME, FILM_ID) VALUES (?, ?, ?)",
                         genre.getId(),
                         genre.getName(),
@@ -218,8 +221,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film deleteLike(long id, long userId) {
         checkId(id);
-        if (userId <= 0)
+        if (userId <= 0) {
             throw new StorageException("Invalid userId");
+        }
         jdbcTemplate.execute("DELETE FROM LIKES WHERE film_id = " + id + " AND user_id = " + userId);
         return getFilmById(id);
     }
