@@ -28,7 +28,7 @@ public class GenreController {
         try {
             return new ResponseEntity<>(service.getGenreById(id), HttpStatus.OK);
         } catch (ValidationException e) {
-            log.error("Invalid genre id");
+            log.error("Invalid genre id " + id);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
