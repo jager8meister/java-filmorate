@@ -24,8 +24,9 @@ public class GenreService {
     }
 
     public Genre getGenreById(int id) {
-        if (id < minimalGenreIndex || id > maximumGenreIndex)
+        if (id < minimalGenreIndex || id > maximumGenreIndex) {
             throw new ValidationException("Invalid genre id");
+        }
         Map<String, Object> raw = jdbcTemplate.queryForMap("SELECT name FROM genres WHERE genre_id = " + id);
         Genre genre = new Genre();
         genre.setId(id);

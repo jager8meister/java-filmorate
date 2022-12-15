@@ -185,8 +185,9 @@ public class UserDbStorage implements UserStorage {
         Collection<Long> otherFriendIds = getUserById(otherId).getFriendsIds();
         Set<Long> resIds = new HashSet<>();
         for (Long elemId: friendIds) {
-            if (otherFriendIds.contains(elemId))
+            if (otherFriendIds.contains(elemId)) {
                 resIds.add(elemId);
+            }
         }
         Collection<User> res = new HashSet<>();
         for (Long elemId : resIds) {
