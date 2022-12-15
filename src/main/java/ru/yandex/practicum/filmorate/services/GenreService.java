@@ -33,7 +33,17 @@ public class GenreService {
     }
 
     public Collection<Genre> getAllGenres() {
-        List<Map<String, Object>> raw = jdbcTemplate.queryForList("SELECT * FROM genres");
-        return FilmDbStorage.getAllFilmGenres(raw);
+        return getAllFilmGenres(jdbcTemplate.queryForList("SELECT * FROM genres"));
+    }
+
+    public static List<Genre> getAllFilmGenres(List<Map<String, Object>> raw) {
+        List<Genre> allFilmGenres = new ArrayList<>();
+        for (Map<String, Object> genreElem : raw) {
+            Genre genre = new Genre();
+            genre.setId((Integer) genreElem.get("genre_id"));
+            genre.setName((String) genreElem.get("name"));
+            allFilmGenres.add(genre);
+        }
+        return allFilmGenres;
     }
 }

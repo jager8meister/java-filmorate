@@ -177,21 +177,10 @@ public class FilmDbStorage implements FilmStorage {
         film.setMpa(mpa);
         String sqlQuery = "SELECT genre_id, name FROM genre WHERE film_id = " + film.getId();
         List<Map<String, Object>> raw = jdbcTemplate.queryForList(sqlQuery);
-        List<Genre> allFilmGenres = getAllFilmGenres(raw);
+        List<Genre> allFilmGenres = GenreService.getAllFilmGenres(raw);
         film.setGenres(allFilmGenres);
         film.setLikes(getLikesIds(film.getId()));
         return film;
-    }
-
-    public static List<Genre> getAllFilmGenres(List<Map<String, Object>> raw) {
-        List<Genre> allFilmGenres = new ArrayList<>();
-        for (Map<String, Object> genreElem : raw) {
-            Genre genre = new Genre();
-            genre.setId((Integer) genreElem.get("genre_id"));
-            genre.setName((String) genreElem.get("name"));
-            allFilmGenres.add(genre);
-        }
-        return allFilmGenres;
     }
 
     @Override
