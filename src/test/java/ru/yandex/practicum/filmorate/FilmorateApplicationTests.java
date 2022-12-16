@@ -1,136 +1,143 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import ru.yandex.practicum.filmorate.controllers.FilmController;
-import ru.yandex.practicum.filmorate.controllers.UserController;
+import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.exceptions.StorageException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.services.FilmService;
-import ru.yandex.practicum.filmorate.services.UserService;
-import ru.yandex.practicum.filmorate.storages.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storages.InMemoryUserStorage;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 class FilmorateApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
-	private UserController userController;
-	private FilmController filmController;
-
-	@BeforeEach
-	void setUserController() {
-		userController = new UserController(new UserService(new InMemoryUserStorage()));
-		filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
-	}
+	private final UserDbStorage userStorage;
+	private final FilmDbStorage filmStorage;
 
 	@Test
-	void testUserService() {
-		UserService userService = new UserService(new InMemoryUserStorage());
-		User a = new User();
-		a.setName("Jo");
-		a.setLogin("JoLOG");
-		a.setEmail("gi@gmail.com");
-		a.setBirthday(LocalDate.of(1990, 11, 10));
-		userService.addUser(a);
-		Assertions.assertEquals(1, userService.getAllUsers().size());
-		a.setId(2L);
-		userService.addUser(a);
-		Assertions.assertEquals(2, userService.getAllUsers().size());
+	public void testUserStorage() {
 
+		User userTest = new User();
+		userTest.setEmail("test@m.com");
+		userTest.setBirthday(LocalDate.of(1998, 10, 10));
+		userTest.setLogin("Su");
+		userTest.setName("Wu");
+		userTest = userStorage.addUser(userTest);
+		Optional<User> userOptional = Optional.of(userStorage.getUserById(1));
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+		assertThat(userOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
+				);
 
+		userTest.setLogin("newlogin");
+		userStorage.updateUser(userTest);
+		userOptional = Optional.of(userStorage.getUserById(1));
+		assertThat(userOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user).hasFieldOrPropertyWithValue("login", "newlogin")
+				);
+
+		userTest = new User();
+		userTest.setEmail("test@m.com");
+		userTest.setBirthday(LocalDate.of(1998, 10, 10));
+		userTest.setLogin("Su");
+		userTest.setName("Wu");
+		userTest = userStorage.addUser(userTest);
+
+		userStorage.addFriend(userTest.getId(), 1L);
+		userOptional = Optional.of(userStorage.getUserById(userTest.getId()));
+		assertThat(userOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user.getFriendsIds().size()).isEqualTo(1)
+				);
+
+		userOptional = Optional.of(userStorage.getUserById(1L));
+		assertThat(userOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user.getFriendsIds().size()).isEqualTo(0)
+				);
+
+		userStorage.removeFriend(2L, 1L);
+		userOptional = Optional.of(userStorage.getUserById(2L));
+		assertThat(userOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user.getFriendsIds().size()).isEqualTo(0));
+
+		assertThrows(StorageException.class,
+				()->{userStorage.removeFriend(2L, 200L);});
+
+		User finalUserTest = userTest;
+		assertThrows(StorageException.class,
+				()->{userStorage.addUser(finalUserTest);});
+
+		finalUserTest.setId(1000L);
+		assertThrows(StorageException.class,
+				()->{userStorage.addUser(finalUserTest);});
+
+		assertThat(userStorage.getAllFriends(1).size()).isEqualTo(0);
+
+		userTest = new User();
+		userTest.setEmail("test@m.com");
+		userTest.setBirthday(LocalDate.of(1998, 10, 10));
+		userTest.setLogin("Suqqq");
+		userTest.setName("Wop");
+
+		userStorage.addUser(userTest);
+		userStorage.addFriend(1, 2);
+		assertThat(userStorage.getAllFriends(1).size()).isEqualTo(1);
+		assertThat(userStorage.getAllFriends(2).size()).isEqualTo(0);
 	}
 
 	@Test
-	void testUserAdd() {
-		ResponseEntity<User> responseEntity = userController.addUser(new User());
-		assertThat(responseEntity.getStatusCodeValue()).isEqualTo(400);
+	public void testFilmStorage() {
+		Film filmTest = new Film();
+		filmTest.setName("Test name");
+		filmTest.setDuration(100);
+		filmTest.setReleaseDate(LocalDate.of(1990, 9, 10));
+		filmTest.setDescription("desc");
+		Mpa mpa = new Mpa();
+		mpa.setId(1);
+		filmTest.setMpa(mpa);
+		filmTest = filmStorage.addFilm(filmTest);
+		Optional<Film> filmOptional = Optional.of(filmStorage.getFilmById(1L));
+		assertThat(filmOptional)
+				.isPresent()
+				.hasValueSatisfying(film ->
+						assertThat(film.getId()).isEqualTo(1L)
+				);
+		filmTest = filmStorage.likeFilm(filmTest.getId(), 1);
+		filmOptional = Optional.of(filmStorage.getFilmById(filmTest.getId()));
+		assertThat(filmOptional)
+				.isPresent()
+				.hasValueSatisfying(film ->
+						assertThat(film.getLikes().size()).isEqualTo(1)
+				);
+		Film finalFilmTest = filmTest;
+		assertThrows(StorageException.class,
+				()->{filmStorage.likeFilm(finalFilmTest.getId(),-9);});
 
-		User user = new User();
-		user.setName("Jo");
-		user.setLogin("JoLOG");
-		user.setEmail("gi@gmail.com");
-		user.setBirthday(LocalDate.of(1990, 11, 10));
-		responseEntity = userController.addUser(user);
-		assertThat(responseEntity.getBody().getName()).isEqualTo(user.getName());
-		assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
-		ResponseEntity<Collection<User>> allUsers = userController.getAllUsers();
-		assertThat(allUsers.getBody().size()).isEqualTo(1);
+		filmTest.setId(90L);
+		Film finalFilmTest1 = filmTest;
+		assertThrows(StorageException.class,
+				()->{filmStorage.updateFilm(finalFilmTest1);});
 
-		user = new User();
-		user.setName("Fu");
-		user.setLogin("Lo");
-		user.setEmail("bi@gmail.com");
-		user.setBirthday(LocalDate.of(1990, 11, 10));
-		responseEntity = userController.addUser(user);
-		assertThat(responseEntity.getBody().getName()).isEqualTo(user.getName());
-		assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
-		allUsers = userController.getAllUsers();
-		assertThat(allUsers.getBody().size()).isEqualTo(2);
-		responseEntity = userController.addFriend(1, 2);
-		assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
-		ResponseEntity<Collection<User>> allFriends = userController.getAllFriends(1);
-		assertThat(allFriends.getBody().size()).isEqualTo(1);
-	}
-
-	@Test
-	void testFilm() {
-		Film film = new Film();
-		film.setName("FI");
-		film.setDescription("text super");
-		film.setReleaseDate(LocalDate.of(2000, 11, 10));
-		film.setDuration(63);
-		ResponseEntity<Film> responseEntity =  filmController.addFilm(film);
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(responseEntity.getBody().getName()).isEqualTo(film.getName());
-		ResponseEntity<Collection<Film>> collectionResponseEntity = filmController.getPopularCounted(9);
-		assertThat(collectionResponseEntity.getBody().size()).isEqualTo(1);
-
-		film = new Film();
-		film.setName("SI");
-		film.setDescription("NNN");
-		film.setReleaseDate(LocalDate.of(2013, 10, 10));
-		film.setDuration(69);
-		responseEntity =  filmController.addFilm(film);
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(responseEntity.getBody().getName()).isEqualTo(film.getName());
-		collectionResponseEntity = filmController.getPopularCounted(9);
-		assertThat(collectionResponseEntity.getBody().size()).isEqualTo(2);
-
-		responseEntity = filmController.likeFilm(1, 13);
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		collectionResponseEntity = filmController.getPopularCounted(9);
-		assertThat(((Film)(collectionResponseEntity.getBody().toArray()[0])).getName()).isEqualTo("FI");
-		assertThat(((Film)(collectionResponseEntity.getBody().toArray()[1])).getName()).isEqualTo("SI");
-
-
-		responseEntity = filmController.likeFilm(1, 1);
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		responseEntity = filmController.deleteLike(1,1);
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		responseEntity = filmController.getFilmById(1);
-		assertThat(responseEntity.getBody().getLikes().size()).isEqualTo(1);
-
-		collectionResponseEntity = filmController.getAllFilms();
-		assertThat(collectionResponseEntity.getBody().size()).isEqualTo(2);
 	}
 }

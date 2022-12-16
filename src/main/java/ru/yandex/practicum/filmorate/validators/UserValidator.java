@@ -11,8 +11,9 @@ public class UserValidator {
         if (user.getEmail() != null
                 && !user.getEmail().isEmpty()
                 && !user.getEmail().isBlank()
-                && user.getEmail().contains("@"))
+                && user.getEmail().contains("@")) {
             return true;
+        }
         throw new ValidationException("Invalid user email");
     }
 
@@ -20,15 +21,17 @@ public class UserValidator {
         if (user.getLogin() != null
                 && !user.getLogin().isEmpty()
                 && !user.getLogin().isBlank()
-                && !user.getLogin().contains(" "))
+                && !user.getLogin().contains(" ")) {
             return true;
+        }
         throw new ValidationException("Invalid user login");
     }
 
     private static boolean checkBirthday(User user) {
         if (user.getBirthday() != null
-                && user.getBirthday().isBefore(LocalDate.now()))
+                && user.getBirthday().isBefore(LocalDate.now())) {
             return true;
+        }
         throw new ValidationException("Invalid user's date of birth");
     }
 
